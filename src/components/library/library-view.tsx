@@ -75,6 +75,7 @@ export function LibraryView({
   }) => {
     const created = await createSubjectAction(data);
     setSubjects((prev) => [...prev, created]);
+    return created;
   };
 
   const handleUpdateSubject = async (
@@ -369,6 +370,7 @@ export function LibraryView({
         onOpenChange={setAddMaterialOpen}
         subjects={subjects}
         topics={topics}
+        onCreateSubject={handleCreateSubject}
         onCreateTopic={handleCreateTopic}
         onSaveMaterial={handleSaveMaterial}
       />

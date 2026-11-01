@@ -63,7 +63,7 @@ interface SubjectSpinesProps {
   materials: Material[];
   selectedSubjectId: string | null;
   onSelectSubject: (id: string | null) => void;
-  onCreateSubject: (data: { name: string; marathiName?: string; color: string; icon: string }) => Promise<void>;
+  onCreateSubject: (data: { name: string; marathiName?: string; color: string; icon: string }) => Promise<any>;
   onUpdateSubject: (id: string, data: { name?: string; marathiName?: string; color?: string; icon?: string }) => Promise<void>;
   onDeleteSubject: (id: string) => Promise<void>;
   onReorderSubjects: (ids: string[]) => Promise<void>;

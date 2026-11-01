@@ -33,6 +33,12 @@ interface AddMaterialDialogProps {
   onOpenChange: (open: boolean) => void;
   subjects: Subject[];
   topics: Topic[];
+  onCreateSubject?: (data: {
+    name: string;
+    marathiName?: string;
+    color: string;
+    icon: string;
+  }) => Promise<Subject>;
   onCreateTopic: (subjectId: string, name: string) => Promise<Topic>;
   onSaveMaterial: (data: {
     topicId: string;
@@ -50,6 +56,7 @@ export function AddMaterialDialog({
   onOpenChange,
   subjects,
   topics,
+  onCreateSubject,
   onCreateTopic,
   onSaveMaterial,
 }: AddMaterialDialogProps) {
@@ -74,6 +81,12 @@ export function AddMaterialDialog({
   const [selectedTopicId, setSelectedTopicId] = useState<string>("");
   const [language, setLanguage] = useState<"en" | "mr">("en");
 
+  // Inline subject creation
+  const [showInlineSubject, setShowInlineSubject] = useState(false);
+  const [newSubjectName, setNewSubjectName] = useState("");
+  const [newSubjectColor, setNewSubjectColor] = useState("#E6AF2E");
+  const [isCreatingSubject, setIsCreatingSubject] = useState(false);
+
   // Inline topic creation
   const [newTopicName, setNewTopicName] = useState("");
   const [showInlineTopic, setShowInlineTopic] = useState(false);
@@ -90,6 +103,8 @@ export function AddMaterialDialog({
       setErrorMsg(null);
       if (subjects.length > 0 && !selectedSubjectId) {
         setSelectedSubjectId(subjects[0].id);
+      } else if (subjects.length === 0) {
+        setShowInlineSubject(true);
       }
     }
   }, [open, subjects, selectedSubjectId]);
@@ -252,16 +267,57 @@ export function AddMaterialDialog({
     }
   };
 
+  // Inline subject creator
+  const handleCreateSubjectInline = async () => {
+    if (!newSubjectName.trim() || !onCreateSubject) return;
+    setIsCreatingSubject(true);
+    try {
+      const created = await onCreateSubject({
+        name: newSubjectName.trim(),
+        color: newSubjectColor,
+        icon: "BookOpen",
+      });
+      setSelectedSubjectId(created.id);
+      setNewSubjectName("");
+      setShowInlineSubject(false);
+    } catch (err: any) {
+      setErrorMsg(err?.message || "Failed to create subject.");
+    } finally {
+      setIsCreatingSubject(false);
+    }
+  };
+
   // Inline topic creator
   const handleCreateTopicInline = async () => {
-    if (!newTopicName.trim() || !selectedSubjectId) return;
+    if (!newTopicName.trim()) return;
     try {
-      const created = await onCreateTopic(selectedSubjectId, newTopicName.trim());
+      let subjectId = selectedSubjectId;
+      // If no subject is selected or none exist, auto-create one seamlessly
+      if (!subjectId) {
+        if (onCreateSubject) {
+          const fallbackSubjectName = newSubjectName.trim() || "General Studies";
+          const createdSub = await onCreateSubject({
+            name: fallbackSubjectName,
+            color: newSubjectColor || "#E6AF2E",
+            icon: "BookOpen",
+          });
+          subjectId = createdSub.id;
+          setSelectedSubjectId(createdSub.id);
+          setNewSubjectName("");
+          setShowInlineSubject(false);
+        } else {
+          setErrorMsg("Please select or create a subject partition first.");
+          return;
+        }
+      }
+
+      const created = await onCreateTopic(subjectId, newTopicName.trim());
       setSelectedTopicId(created.id);
       setNewTopicName("");
       setShowInlineTopic(false);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      setErrorMsg(e?.message || "Failed to create topic.");
     }
   };
 
@@ -269,18 +325,47 @@ export function AddMaterialDialog({
   const [isSaving, setIsSaving] = useState(false);
 
   const handleFinalSave = async () => {
-    if (!finalTitle.trim() || !finalText.trim() || !selectedTopicId || !selectedSubjectId) {
-      setErrorMsg("Please select a subject, topic, and ensure title and text are filled.");
-      return;
-    }
-
     setIsSaving(true);
     setErrorMsg(null);
 
     try {
+      let subjectId = selectedSubjectId;
+      let topicId = selectedTopicId;
+
+      // Auto-create subject if none selected
+      if (!subjectId) {
+        if (onCreateSubject) {
+          const fallbackSubjectName = newSubjectName.trim() || "General Studies";
+          const createdSub = await onCreateSubject({
+            name: fallbackSubjectName,
+            color: newSubjectColor || "#E6AF2E",
+            icon: "BookOpen",
+          });
+          subjectId = createdSub.id;
+          setSelectedSubjectId(createdSub.id);
+        } else {
+          setErrorMsg("Please select or create a subject partition.");
+          setIsSaving(false);
+          return;
+        }
+      }
+
+      // Auto-create topic if not selected but name was typed
+      if (!topicId && newTopicName.trim() && subjectId) {
+        const createdTopic = await onCreateTopic(subjectId, newTopicName.trim());
+        topicId = createdTopic.id;
+        setSelectedTopicId(createdTopic.id);
+      }
+
+      if (!finalTitle.trim() || !finalText.trim() || !topicId || !subjectId) {
+        setErrorMsg("Please ensure title, subject, and topic are provided.");
+        setIsSaving(false);
+        return;
+      }
+
       await onSaveMaterial({
-        topicId: selectedTopicId,
-        subjectId: selectedSubjectId,
+        topicId,
+        subjectId,
         title: finalTitle.trim(),
         sourceType: finalSourceType,
         sourceUrl: finalSourceUrl,
@@ -520,20 +605,79 @@ export function AddMaterialDialog({
               </div>
 
               <div>
-                <label className="text-xs font-mono uppercase text-mist block mb-1">
-                  Subject Partition
-                </label>
-                <select
-                  value={selectedSubjectId}
-                  onChange={(e) => setSelectedSubjectId(e.target.value)}
-                  className="flex h-11 w-full rounded-xl border border-gold/20 bg-deep px-4 py-2 text-sm text-ivory focus:outline-none focus:border-gold"
-                >
-                  {subjects.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name} {s.marathiName ? `(${s.marathiName})` : ""}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-mono uppercase text-mist">
+                    Subject Partition
+                  </label>
+                  {onCreateSubject && (
+                    <button
+                      type="button"
+                      onClick={() => setShowInlineSubject(!showInlineSubject)}
+                      className="text-xs font-mono text-gold hover:text-gold-soft flex items-center gap-1"
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span>{subjects.length === 0 ? "Add Subject" : "New Subject"}</span>
+                    </button>
+                  )}
+                </div>
+
+                {showInlineSubject || subjects.length === 0 ? (
+                  <div className="space-y-2 rounded-xl border border-gold/30 bg-veil/50 p-3 mb-2 animate-in fade-in">
+                    <span className="text-[10px] font-mono text-gold-soft uppercase tracking-wider block">
+                      {subjects.length === 0 ? "First Subject Partition Required" : "Create New Subject Partition"}
+                    </span>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Subject name (e.g. Product, Physics)"
+                        value={newSubjectName}
+                        onChange={(e) => setNewSubjectName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleCreateSubjectInline();
+                          }
+                        }}
+                        autoFocus
+                      />
+                      <Button
+                        type="button"
+                        variant="celestial"
+                        size="sm"
+                        onClick={handleCreateSubjectInline}
+                        disabled={!newSubjectName.trim() || isCreatingSubject}
+                      >
+                        {isCreatingSubject ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Add"}
+                      </Button>
+                    </div>
+                    {/* Ribbon color swatch */}
+                    <div className="flex items-center gap-2 pt-1">
+                      <span className="text-[10px] font-mono text-mist">Ribbon Color:</span>
+                      {["#E6AF2E", "#3B82F6", "#10B981", "#8B5CF6", "#EC4899", "#F97316"].map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setNewSubjectColor(c)}
+                          className={`w-4 h-4 rounded-full transition-transform ${
+                            newSubjectColor === c ? "scale-125 ring-2 ring-gold" : "opacity-70 hover:opacity-100"
+                          }`}
+                          style={{ backgroundColor: c }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <select
+                    value={selectedSubjectId}
+                    onChange={(e) => setSelectedSubjectId(e.target.value)}
+                    className="flex h-11 w-full rounded-xl border border-gold/20 bg-deep px-4 py-2 text-sm text-ivory focus:outline-none focus:border-gold"
+                  >
+                    {subjects.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name} {s.marathiName ? `(${s.marathiName})` : ""}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
             </div>
 
@@ -553,12 +697,18 @@ export function AddMaterialDialog({
                 </button>
               </div>
 
-              {showInlineTopic ? (
+              {showInlineTopic || availableTopics.length === 0 ? (
                 <div className="flex gap-2 mb-2">
                   <Input
-                    placeholder="Topic name (e.g. Special Relativity)"
+                    placeholder="Topic name (e.g. Special Relativity, MVP)"
                     value={newTopicName}
                     onChange={(e) => setNewTopicName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleCreateTopicInline();
+                      }
+                    }}
                     autoFocus
                   />
                   <Button
@@ -577,15 +727,11 @@ export function AddMaterialDialog({
                   onChange={(e) => setSelectedTopicId(e.target.value)}
                   className="flex h-11 w-full rounded-xl border border-gold/20 bg-deep px-4 py-2 text-sm text-ivory focus:outline-none focus:border-gold"
                 >
-                  {availableTopics.length === 0 ? (
-                    <option value="">No topics in this subject yet (click New Topic)</option>
-                  ) : (
-                    availableTopics.map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.name}
-                      </option>
-                    ))
-                  )}
+                  {availableTopics.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name}
+                    </option>
+                  ))}
                 </select>
               )}
             </div>
@@ -664,7 +810,7 @@ export function AddMaterialDialog({
                 type="button"
                 variant="celestial"
                 onClick={handleFinalSave}
-                disabled={isSaving || !selectedTopicId || !finalText.trim()}
+                disabled={isSaving || (!selectedTopicId && !newTopicName.trim()) || !finalText.trim()}
                 className="gap-2"
               >
                 {isSaving ? (
