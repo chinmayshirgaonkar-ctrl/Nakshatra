@@ -6,7 +6,11 @@ import {
   MaterialChunk,
   Concept,
   ConceptLink,
+  MistakeExhibit,
+  ConceptFSRSChange,
+  FSRSCardData,
 } from "@/lib/types/models";
+import { fsrs, Rating, Card, State } from "ts-fsrs";
 
 // ----------------- SUBJECTS -----------------
 export async function getSubjects(uid: string): Promise<Subject[]> {
@@ -295,4 +299,183 @@ export async function trackReadingTime(
       });
     }
   });
+}
+
+// ----------------- PHASE 4: FSRS & TRIALS -----------------
+const fsrsInstance = fsrs();
+
+export async function getWeakestConcepts(
+  uid: string,
+  limit = 25
+): Promise<Concept[]> {
+  const concepts = await getConcepts(uid);
+  const nowTime = Date.now();
+
+  concepts.sort((a, b) => {
+    const dueA = new Date(a.fsrs.due).getTime() <= nowTime ? 1 : 0;
+    const dueB = new Date(b.fsrs.due).getTime() <= nowTime ? 1 : 0;
+    if (dueA !== dueB) return dueB - dueA; // Due stars first
+    if (a.fsrs.stability !== b.fsrs.stability) return a.fsrs.stability - b.fsrs.stability;
+    return b.fsrs.difficulty - a.fsrs.difficulty;
+  });
+
+  return concepts.slice(0, limit);
+}
+
+export async function updateConceptFSRSRatings(
+  uid: string,
+  updates: Array<{ conceptId: string; rating: Rating }>
+): Promise<{ strengthened: ConceptFSRSChange[]; weakened: ConceptFSRSChange[] }> {
+  if (updates.length === 0) return { strengthened: [], weakened: [] };
+
+  const now = new Date();
+  const strengthened: ConceptFSRSChange[] = [];
+  const weakened: ConceptFSRSChange[] = [];
+
+  const batch = adminDb.batch();
+
+  for (const { conceptId, rating } of updates) {
+    const docRef = adminDb.doc(`users/${uid}/concepts/${conceptId}`);
+    const docSnap = await docRef.get();
+    if (!docSnap.exists) continue;
+
+    const concept = docSnap.data() as Concept;
+    const currentFsrs = concept.fsrs;
+
+    const card: Card = {
+      due: new Date(currentFsrs.due),
+      stability: currentFsrs.stability,
+      difficulty: currentFsrs.difficulty,
+      elapsed_days: currentFsrs.elapsedDays,
+      scheduled_days: currentFsrs.scheduledDays,
+      learning_steps: 0,
+      reps: currentFsrs.reps,
+      lapses: currentFsrs.lapses,
+      state: currentFsrs.state as State,
+      last_review: currentFsrs.lastReview ? new Date(currentFsrs.lastReview) : undefined,
+    };
+
+    const record = fsrsInstance.repeat(card, now);
+    const validGrade = Math.max(1, Math.min(4, Number(rating))) as 1 | 2 | 3 | 4;
+    const nextCard = record[validGrade].card;
+
+    const updatedFsrs: FSRSCardData = {
+      due: nextCard.due.toISOString(),
+      stability: Number(nextCard.stability.toFixed(2)),
+      difficulty: Number(nextCard.difficulty.toFixed(2)),
+      elapsedDays: nextCard.elapsed_days,
+      scheduledDays: nextCard.scheduled_days,
+      reps: nextCard.reps,
+      lapses: nextCard.lapses,
+      state: nextCard.state,
+      lastReview: now.toISOString(),
+    };
+
+    batch.update(docRef, { fsrs: updatedFsrs });
+
+    const improved = rating >= Rating.Good;
+    const change: ConceptFSRSChange = {
+      conceptId,
+      conceptName: concept.name,
+      oldStability: currentFsrs.stability,
+      newStability: updatedFsrs.stability,
+      oldDue: currentFsrs.due,
+      newDue: updatedFsrs.due,
+      rating,
+      improved,
+    };
+
+    if (improved) {
+      strengthened.push(change);
+    } else {
+      weakened.push(change);
+    }
+  }
+
+  // Increment review counter in dailyLog
+  const dateKey = now.toISOString().split("T")[0];
+  const logRef = adminDb.doc(`users/${uid}/dailyLogs/${dateKey}`);
+  batch.set(
+    logRef,
+    {
+      date: dateKey,
+      reviewsCount: adminDb.constructor.name ? (await logRef.get()).data()?.reviewsCount || 0 + updates.length : updates.length,
+      lastUpdated: now.toISOString(),
+    },
+    { merge: true }
+  );
+
+  await batch.commit();
+  return { strengthened, weakened };
+}
+
+// ----------------- MUSEUM OF MISTAKES -----------------
+export async function getMistakes(
+  uid: string,
+  resolved?: boolean
+): Promise<MistakeExhibit[]> {
+  let query: FirebaseFirestore.Query = adminDb
+    .collection(`users/${uid}/mistakes`)
+    .orderBy("lastTestedAt", "desc");
+
+  if (resolved !== undefined) {
+    query = query.where("resolved", "==", resolved);
+  }
+
+  const snapshot = await query.get();
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...(doc.data() as Omit<MistakeExhibit, "id">),
+  }));
+}
+
+export async function createMistakeExhibit(
+  uid: string,
+  data: Omit<MistakeExhibit, "id">
+): Promise<MistakeExhibit> {
+  const ref = adminDb.collection(`users/${uid}/mistakes`).doc();
+  const exhibit: MistakeExhibit = {
+    id: ref.id,
+    ...data,
+  };
+  await ref.set(exhibit);
+  return exhibit;
+}
+
+export async function updateMistakeStreak(
+  uid: string,
+  mistakeId: string,
+  correct: boolean
+): Promise<MistakeExhibit | null> {
+  const ref = adminDb.doc(`users/${uid}/mistakes/${mistakeId}`);
+  let updatedExhibit: MistakeExhibit | null = null;
+
+  await adminDb.runTransaction(async (t) => {
+    const doc = await t.get(ref);
+    if (!doc.exists) return;
+    const current = doc.data() as MistakeExhibit;
+    let streak = current.correctStreak || 0;
+    let resolved = current.resolved || false;
+
+    if (correct) {
+      streak += 1;
+      if (streak >= 2) {
+        resolved = true;
+      }
+    } else {
+      streak = 0;
+      resolved = false;
+    }
+
+    const updates = {
+      correctStreak: streak,
+      resolved,
+      lastTestedAt: new Date().toISOString(),
+    };
+
+    t.update(ref, updates);
+    updatedExhibit = { ...current, ...updates, id: doc.id };
+  });
+
+  return updatedExhibit;
 }

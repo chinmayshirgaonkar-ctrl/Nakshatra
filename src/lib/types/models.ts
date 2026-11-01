@@ -93,3 +93,76 @@ export interface AiOutput {
   model: string;
   createdAt: string;
 }
+
+// ----------------- PHASE 4: TRIALS & MISTAKES -----------------
+export type QuestionType = "mcq" | "true_false_why" | "fill_blank" | "short_answer";
+export type TrialDifficulty = "gentle" | "honest" | "brutal";
+export type ConfidenceLevel = "sure" | "think_so" | "guessing";
+
+export interface TrialQuestion {
+  id: string;
+  type: QuestionType;
+  prompt: string;
+  conceptIds: string[];
+  conceptNames: string[];
+  difficulty: TrialDifficulty;
+  // For MCQ
+  options?: string[];
+  correctOptionIndex?: number;
+  // For True/False + Why
+  statement?: string;
+  correctBool?: boolean;
+  whyExplanation?: string;
+  // For Fill-in-the-blank
+  blankSentence?: string; // Sentence with '_____'
+  acceptableAnswers?: string[];
+  // For Short Answer
+  modelAnswer?: string;
+  rubricKeywords?: string[];
+  // Universal
+  explanation: string;
+  // If re-trial from mistake
+  originalMistakeId?: string;
+}
+
+export interface MistakeExhibit {
+  id: string;
+  question: string;
+  questionType: QuestionType;
+  userAnswer: string;
+  correctAnswer: string;
+  whyWrong: string;
+  correctReasoning: string;
+  memoryHook: string;
+  conceptIds: string[];
+  conceptNames: string[];
+  topicId?: string;
+  subjectId?: string;
+  materialId?: string;
+  correctStreak: number; // 0, 1, 2
+  resolved: boolean; // true when correctStreak >= 2
+  createdAt: string;
+  lastTestedAt: string;
+}
+
+export interface ConceptFSRSChange {
+  conceptId: string;
+  conceptName: string;
+  oldStability: number;
+  newStability: number;
+  oldDue: string;
+  newDue: string;
+  rating: number; // 1-4 (Again, Hard, Good, Easy)
+  improved: boolean;
+}
+
+export interface TrialSessionResult {
+  score: number;
+  totalQuestions: number;
+  percentage: number;
+  durationSeconds: number;
+  strengthened: ConceptFSRSChange[];
+  weakened: ConceptFSRSChange[];
+  newMistakesCount: number;
+  resolvedMistakesCount: number;
+}

@@ -350,9 +350,10 @@ export function AddMaterialDialog({
         }
       }
 
-      // Auto-create topic if not selected but name was typed
-      if (!topicId && newTopicName.trim() && subjectId) {
-        const createdTopic = await onCreateTopic(subjectId, newTopicName.trim());
+      // Auto-create topic if not selected
+      if (!topicId && subjectId) {
+        const fallbackTopic = newTopicName.trim() || "Core Concepts";
+        const createdTopic = await onCreateTopic(subjectId, fallbackTopic);
         topicId = createdTopic.id;
         setSelectedTopicId(createdTopic.id);
       }
@@ -810,7 +811,7 @@ export function AddMaterialDialog({
                 type="button"
                 variant="celestial"
                 onClick={handleFinalSave}
-                disabled={isSaving || (!selectedTopicId && !newTopicName.trim()) || !finalText.trim()}
+                disabled={isSaving || !finalText.trim()}
                 className="gap-2"
               >
                 {isSaving ? (

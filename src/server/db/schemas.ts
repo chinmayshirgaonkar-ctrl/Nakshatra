@@ -143,3 +143,61 @@ export const MindMapNodeSchema: z.ZodType<MindMapNode> = z.lazy(() =>
 export const MindMapResponseSchema = z.object({
   root: MindMapNodeSchema,
 });
+
+// Phase 4: Trials & Mistakes Schemas
+export const MistakeExhibitSchema = z.object({
+  id: z.string().optional(),
+  question: z.string(),
+  questionType: z.enum(["mcq", "true_false_why", "fill_blank", "short_answer"]),
+  userAnswer: z.string(),
+  correctAnswer: z.string(),
+  whyWrong: z.string(),
+  correctReasoning: z.string(),
+  memoryHook: z.string(),
+  conceptIds: z.array(z.string()),
+  conceptNames: z.array(z.string()),
+  topicId: z.string().optional(),
+  subjectId: z.string().optional(),
+  materialId: z.string().optional(),
+  correctStreak: z.number().default(0),
+  resolved: z.boolean().default(false),
+  createdAt: z.string().default(() => new Date().toISOString()),
+  lastTestedAt: z.string().default(() => new Date().toISOString()),
+});
+
+export const GeneratedQuestionItemSchema = z.object({
+  id: z.string().default(() => Math.random().toString(36).substring(2, 9)),
+  type: z.enum(["mcq", "true_false_why", "fill_blank", "short_answer"]),
+  prompt: z.string().describe("Clear, thought-provoking problem statement or scenario testing deep understanding"),
+  conceptIds: z.array(z.string()).describe("IDs of the concepts this question tests (from the provided list)"),
+  conceptNames: z.array(z.string()).describe("Names of the concepts tested"),
+  // MCQ
+  options: z.array(z.string()).optional().describe("Exactly 4 plausible options for MCQ (distractors must target real misconceptions)"),
+  correctOptionIndex: z.number().min(0).max(3).optional().describe("0-3 index of the correct option for MCQ"),
+  // True / False
+  statement: z.string().optional().describe("Assertion statement for true_false_why"),
+  correctBool: z.boolean().optional().describe("True or false"),
+  whyExplanation: z.string().optional().describe("Why the statement is true or false"),
+  // Fill in the blank
+  blankSentence: z.string().optional().describe("Sentence with '_____' for fill_blank"),
+  acceptableAnswers: z.array(z.string()).optional().describe("List of acceptable lowercase exact words or phrases"),
+  // Short Answer
+  modelAnswer: z.string().optional().describe("Model answer for short_answer"),
+  rubricKeywords: z.array(z.string()).optional().describe("Key mechanisms or terms that must be present"),
+  // Universal
+  explanation: z.string().describe("Masterful explanation detailing the core reasoning, counteracting misconceptions"),
+});
+
+export const QuizGenerationResponseSchema = z.object({
+  questions: z.array(GeneratedQuestionItemSchema),
+});
+
+export const ShortAnswerGradingResponseSchema = z.object({
+  score: z.number().min(0).max(3).describe("Integer 0 to 3 (3=masterful, 2=good grasp, 1=partial/vague, 0=misconception/incorrect)"),
+  isCorrect: z.boolean().describe("true if score >= 2, false if score < 2"),
+  whatWasGood: z.string().describe("1-2 sentences highlighting what the student grasped accurately"),
+  whatWasMissing: z.string().describe("1-2 sentences on what was omitted or imprecise"),
+  whyWrong: z.string().optional().describe("If score < 2, the exact misconception or reason it is inadequate"),
+  correctReasoning: z.string().describe("The complete, lucid correct answer and explanation"),
+  memoryHook: z.string().optional().describe("If score < 2, a 1-line celestial mnemonic hook to anchor memory"),
+});
