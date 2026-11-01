@@ -1,0 +1,27 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Single-user perimeter: authenticated UID, exact email match, and verified email
+    function isAllowedUser(userId) {
+      return request.auth != null &&
+             request.auth.uid == userId &&
+             request.auth.token.email == "chinmay.shirgaonkar@gmail.com" &&
+             request.auth.token.email_verified == true;
+    }
+
+    // All user chambers and sub-collections live under users/{userId}
+    match /users/{userId} {
+      allow read, write: if isAllowedUser(userId);
+
+      match /{document=**} {
+        allow read, write: if isAllowedUser(userId);
+      }
+    }
+
+    // Strict default deny for any collection outside users/{userId}
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

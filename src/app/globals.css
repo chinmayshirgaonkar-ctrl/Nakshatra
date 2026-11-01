@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Default Dark Theme: "Midnight Observatory" */
+    --night: #0A0D18;
+    --deep: #11162A;
+    --veil: #1A2140;
+    --gold: #D4AF6A;
+    --gold-soft: #E9D6A8;
+    --gold-muted: rgba(212, 175, 106, 0.14);
+    --ivory: #F3EEE3;
+    --mist: #9AA3BF;
+    --aurora: #6FD3C6;
+    --ember: #E07A5F;
+
+    --background: #0A0D18;
+    --foreground: #F3EEE3;
+
+    --card: #11162A;
+    --card-foreground: #F3EEE3;
+
+    --popover: #11162A;
+    --popover-foreground: #F3EEE3;
+
+    --primary: #D4AF6A;
+    --primary-foreground: #0A0D18;
+
+    --secondary: #1A2140;
+    --secondary-foreground: #F3EEE3;
+
+    --muted: #1A2140;
+    --muted-foreground: #9AA3BF;
+
+    --accent: #1A2140;
+    --accent-foreground: #E9D6A8;
+
+    --border: rgba(212, 175, 106, 0.14);
+    --input: rgba(212, 175, 106, 0.2);
+    --ring: #D4AF6A;
+
+    --radius: 20px;
+  }
+
+  .light {
+    /* Light Theme: "Parchment" */
+    --night: #F6F1E7;
+    --deep: #EDE6D8;
+    --veil: #E2D9C6;
+    --gold: #9C7228;
+    --gold-soft: #634714;
+    --gold-muted: rgba(156, 114, 40, 0.12);
+    --ivory: #1C1B22;
+    --mist: #696573;
+    --aurora: #178070;
+    --ember: #B8472E;
+
+    --background: #F6F1E7;
+    --foreground: #1C1B22;
+
+    --card: #EDE6D8;
+    --card-foreground: #1C1B22;
+
+    --popover: #EDE6D8;
+    --popover-foreground: #1C1B22;
+
+    --primary: #9C7228;
+    --primary-foreground: #FDFBF7;
+
+    --secondary: #E2D9C6;
+    --secondary-foreground: #1C1B22;
+
+    --muted: #E2D9C6;
+    --muted-foreground: #696573;
+
+    --accent: #E2D9C6;
+    --accent-foreground: #634714;
+
+    --border: rgba(156, 114, 40, 0.18);
+    --input: rgba(156, 114, 40, 0.22);
+    --ring: #9C7228;
+
+    --radius: 20px;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    color-scheme: dark;
+  }
+  html.light {
+    color-scheme: light;
+  }
+  body {
+    @apply bg-background text-foreground font-manrope antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: rgba(212, 175, 106, 0.25);
+    color: var(--gold-soft);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-fraunces tracking-tight;
+  }
+}
+
+/* Subtle observatory grain texture */
+.observatory-grain {
+  background-image: radial-gradient(rgba(212, 175, 106, 0.05) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Custom scrollbars reminiscent of brass instruments */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gold-muted);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
+/* Astronomical brass hairline */
+.gold-hairline {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--gold) 50%, transparent 100%);
+  opacity: 0.25;
+}
+
+/* Subtle card styling */
+.observatory-card {
+  background-color: var(--deep);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px -10px rgba(5, 7, 13, 0.4), inset 0 1px 1px 0 rgba(212, 175, 106, 0.12);
+  border-radius: var(--radius);
+}
+
+.light .observatory-card {
+  box-shadow: 0 10px 30px -10px rgba(100, 80, 50, 0.1), inset 0 1px 1px 0 rgba(255, 255, 255, 0.6);
+}
