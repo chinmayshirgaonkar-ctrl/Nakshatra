@@ -90,3 +90,56 @@ export const ExtractionResponseSchema = z.object({
   concepts: z.array(ExtractedConceptItemSchema).min(3).max(25),
   relations: z.array(ExtractedRelationItemSchema),
 });
+
+// Reading Room Schemas
+export const KeyPointItemSchema = z.object({
+  id: z.string().default(() => Math.random().toString(36).substring(2, 9)),
+  number: z.number(),
+  point: z.string(),
+  supportingQuote: z.string().describe("Exact quote or near-verbatim supporting line from source text"),
+  explanation: z.string().describe("Lucid explanation of this point and why it matters"),
+});
+
+export const KeyPointsResponseSchema = z.object({
+  keyPoints: z.array(KeyPointItemSchema),
+});
+
+export const GlossaryItemSchema = z.object({
+  term: z.string(),
+  marathiTerm: z.string().optional(),
+  definition: z.string(),
+  context: z.string().optional(),
+});
+
+export const GlossaryResponseSchema = z.object({
+  terms: z.array(GlossaryItemSchema),
+});
+
+export const Eli10AnalogySchema = z.object({
+  title: z.string(),
+  analogy: z.string(),
+  takeaway: z.string(),
+});
+
+export const Eli10ResponseSchema = z.object({
+  summary: z.string(),
+  analogies: z.array(Eli10AnalogySchema),
+});
+
+export type MindMapNode = {
+  name: string;
+  description?: string;
+  children?: MindMapNode[];
+};
+
+export const MindMapNodeSchema: z.ZodType<MindMapNode> = z.lazy(() =>
+  z.object({
+    name: z.string(),
+    description: z.string().optional(),
+    children: z.array(MindMapNodeSchema).optional(),
+  })
+);
+
+export const MindMapResponseSchema = z.object({
+  root: MindMapNodeSchema,
+});

@@ -253,3 +253,46 @@ export async function createConceptsAndLinks(
   await batch.commit();
   return { createdConcepts, createdLinks };
 }
+
+export async function createSingleConcept(
+  uid: string,
+  concept: Omit<Concept, "id">
+): Promise<Concept> {
+  const ref = adminDb.collection(`users/${uid}/concepts`).doc();
+  const fullConcept: Concept = { id: ref.id, ...concept };
+  await ref.set(fullConcept);
+  return fullConcept;
+}
+
+// ----------------- DAILY LOG / READING TIME -----------------
+export async function trackReadingTime(
+  uid: string,
+  materialId: string,
+  seconds: number
+): Promise<void> {
+  if (seconds <= 0) return;
+  const dateKey = new Date().toISOString().split("T")[0];
+  const ref = adminDb.doc(`users/${uid}/dailyLogs/${dateKey}`);
+
+  await adminDb.runTransaction(async (t) => {
+    const doc = await t.get(ref);
+    if (!doc.exists) {
+      t.set(ref, {
+        date: dateKey,
+        readingSeconds: seconds,
+        reviewsCount: 0,
+        materialsRead: [materialId],
+        lastUpdated: new Date().toISOString(),
+      });
+    } else {
+      const data = doc.data() || {};
+      const materials = new Set<string>(data.materialsRead || []);
+      materials.add(materialId);
+      t.update(ref, {
+        readingSeconds: (data.readingSeconds || 0) + seconds,
+        materialsRead: Array.from(materials),
+        lastUpdated: new Date().toISOString(),
+      });
+    }
+  });
+}
