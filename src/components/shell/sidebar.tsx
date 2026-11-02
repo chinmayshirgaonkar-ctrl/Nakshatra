@@ -14,6 +14,7 @@ import {
   Archive,
   LogOut,
   Star,
+  Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -37,6 +38,12 @@ export const NAV_ITEMS: NavItem[] = [
     marathi: "ग्रंथालय",
     href: "/library",
     icon: BookOpen,
+  },
+  {
+    title: "Ask the Archive",
+    marathi: "ग्रंथालय संवाद",
+    href: "/archive",
+    icon: Search,
   },
   {
     title: "Reading Room",

@@ -50,6 +50,28 @@ export interface MaterialChunk {
   materialId: string;
   order: number;
   text: string;
+  materialTitle?: string;
+  subjectId?: string;
+  topicId?: string;
+  hasVector?: boolean;
+}
+
+export interface ArchiveCitation {
+  citationNumber: number;
+  materialId: string;
+  materialTitle: string;
+  chunkOrder: number;
+  chunkText: string;
+  similarityScore: number;
+}
+
+export interface ArchiveMessage {
+  id: string;
+  role: "user" | "archive";
+  content: string;
+  citations?: ArchiveCitation[];
+  noArchiveMatch?: boolean;
+  timestamp: string;
 }
 
 export interface Concept {

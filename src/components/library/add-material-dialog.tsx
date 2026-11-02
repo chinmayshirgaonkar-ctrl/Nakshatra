@@ -101,13 +101,19 @@ export function AddMaterialDialog({
     if (open) {
       setStep(1);
       setErrorMsg(null);
-      if (subjects.length > 0 && !selectedSubjectId) {
-        setSelectedSubjectId(subjects[0].id);
-      } else if (subjects.length === 0) {
-        setShowInlineSubject(true);
-      }
     }
-  }, [open, subjects, selectedSubjectId]);
+  }, [open]);
+
+  // Keep selected subject valid
+  React.useEffect(() => {
+    if (subjects.length > 0) {
+      if (!selectedSubjectId || !subjects.some((s) => s.id === selectedSubjectId)) {
+        setSelectedSubjectId(subjects[0].id);
+      }
+    } else {
+      setShowInlineSubject(true);
+    }
+  }, [subjects, selectedSubjectId]);
 
   // Update selected topic when subject changes
   const availableTopics = topics.filter((t) => t.subjectId === selectedSubjectId);
@@ -332,9 +338,12 @@ export function AddMaterialDialog({
       let subjectId = selectedSubjectId;
       let topicId = selectedTopicId;
 
-      // Auto-create subject if none selected
+      // 1. Resolve or create subject
       if (!subjectId) {
-        if (onCreateSubject) {
+        if (subjects.length > 0) {
+          subjectId = subjects[0].id;
+          setSelectedSubjectId(subjectId);
+        } else if (onCreateSubject) {
           const fallbackSubjectName = newSubjectName.trim() || "General Studies";
           const createdSub = await onCreateSubject({
             name: fallbackSubjectName,
@@ -350,12 +359,21 @@ export function AddMaterialDialog({
         }
       }
 
-      // Auto-create topic if not selected
+      // 2. Resolve or create topic
       if (!topicId && subjectId) {
-        const fallbackTopic = newTopicName.trim() || "Core Concepts";
-        const createdTopic = await onCreateTopic(subjectId, fallbackTopic);
-        topicId = createdTopic.id;
-        setSelectedTopicId(createdTopic.id);
+        const matchingTopics = topics.filter((t) => t.subjectId === subjectId);
+        if (newTopicName.trim()) {
+          const createdTopic = await onCreateTopic(subjectId, newTopicName.trim());
+          topicId = createdTopic.id;
+          setSelectedTopicId(createdTopic.id);
+        } else if (matchingTopics.length > 0) {
+          topicId = matchingTopics[0].id;
+          setSelectedTopicId(topicId);
+        } else {
+          const createdTopic = await onCreateTopic(subjectId, "Core Concepts");
+          topicId = createdTopic.id;
+          setSelectedTopicId(createdTopic.id);
+        }
       }
 
       if (!finalTitle.trim() || !finalText.trim() || !topicId || !subjectId) {

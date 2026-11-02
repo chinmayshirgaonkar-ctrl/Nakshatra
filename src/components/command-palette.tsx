@@ -118,6 +118,17 @@ export function CommandPalette() {
                   </Command.Item>
 
                   <Command.Item
+                    onSelect={() => navigateTo("/archive")}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-ivory hover:bg-veil/80 cursor-pointer transition-colors"
+                  >
+                    <Search className="w-4 h-4 text-gold" />
+                    <div className="flex flex-col">
+                      <span>Ask the Archive</span>
+                      <span className="text-[11px] text-mist font-tiro">ग्रंथालय संवाद — Grounded Vector QA</span>
+                    </div>
+                  </Command.Item>
+
+                  <Command.Item
                     onSelect={() => navigateTo("/sky")}
                     className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-ivory hover:bg-veil/80 cursor-pointer transition-colors"
                   >

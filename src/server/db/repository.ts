@@ -1,4 +1,6 @@
 import { adminDb } from "@/lib/firebase/admin";
+import { FieldValue } from "firebase-admin/firestore";
+import { embedBatch } from "@/server/ai/embeddings";
 import {
   Subject,
   Topic,
@@ -174,7 +176,19 @@ export async function createMaterialWithChunks(
     materialId,
     order: idx,
     text,
+    materialTitle: material.title,
+    subjectId: material.subjectId,
+    topicId: material.topicId,
+    hasVector: true,
   }));
+
+  // Generate vector embeddings with Gemini for all chunks
+  let embeddings: number[][] = [];
+  try {
+    embeddings = await embedBatch(chunkTexts);
+  } catch (err) {
+    console.warn("Failed to generate chunk embeddings during material ingestion:", err);
+  }
 
   const batch = adminDb.batch();
   batch.set(matRef, {
@@ -192,10 +206,26 @@ export async function createMaterialWithChunks(
     const chunkRef = adminDb
       .collection(`users/${uid}/materials/${materialId}/chunks`)
       .doc(`${idx}`);
-    batch.set(chunkRef, {
+
+    const chunkDoc: any = {
       order: chunk.order,
       text: chunk.text,
-    });
+      materialId,
+      materialTitle: material.title,
+      subjectId: material.subjectId,
+      topicId: material.topicId,
+      uid,
+    };
+
+    if (embeddings[idx] && embeddings[idx].length === 768) {
+      chunkDoc.embedding = FieldValue.vector(embeddings[idx]);
+    }
+
+    batch.set(chunkRef, chunkDoc);
+
+    // Also index in users/{uid}/chunks for fast vector search
+    const unifiedChunkRef = adminDb.collection(`users/${uid}/chunks`).doc(`${materialId}_${idx}`);
+    batch.set(unifiedChunkRef, chunkDoc);
   });
 
   await batch.commit();
@@ -208,9 +238,176 @@ export async function deleteMaterial(uid: string, id: string): Promise<void> {
     .collection(`users/${uid}/materials/${id}/chunks`)
     .get();
   const batch = adminDb.batch();
-  chunksSnapshot.docs.forEach((doc) => batch.delete(doc.ref));
+  chunksSnapshot.docs.forEach((doc) => {
+    batch.delete(doc.ref);
+    batch.delete(adminDb.doc(`users/${uid}/chunks/${id}_${doc.id}`));
+  });
   batch.delete(adminDb.doc(`users/${uid}/materials/${id}`));
   await batch.commit();
+}
+
+// ----------------- VECTOR ARCHIVE SEARCH -----------------
+export interface MatchedChunkResult {
+  materialId: string;
+  materialTitle: string;
+  chunkOrder: number;
+  text: string;
+  similarityScore: number;
+}
+
+export async function findNearestChunksInArchive(
+  uid: string,
+  queryVector: number[],
+  limit: number = 5
+): Promise<MatchedChunkResult[]> {
+  const collectionRef = adminDb.collection(`users/${uid}/chunks`);
+  const vectorVal = FieldValue.vector(queryVector);
+
+  try {
+    // 1. Attempt Firestore native vector search with findNearest
+    const vectorQuery = collectionRef.findNearest("embedding", vectorVal, {
+      limit,
+      distanceMeasure: "COSINE",
+    });
+
+    const snapshot = await vectorQuery.get();
+    if (!snapshot.empty) {
+      return snapshot.docs.map((doc) => {
+        const d = doc.data();
+        return {
+          materialId: d.materialId,
+          materialTitle: d.materialTitle || "Study Material",
+          chunkOrder: d.order ?? 0,
+          text: d.text || "",
+          similarityScore: 0.95,
+        };
+      });
+    }
+  } catch (err: any) {
+    console.warn("Firestore native findNearest fallback notice:", err?.message);
+  }
+
+  // 2. Seamless Fallback: in-memory cosine distance across the user's chunk vectors
+  const allDocsSnapshot = await collectionRef.get();
+  if (allDocsSnapshot.empty) {
+    // If unified collection is empty, check material subcollections
+    const materials = await adminDb.collection(`users/${uid}/materials`).get();
+    for (const mat of materials.docs) {
+      const subChunks = await adminDb.collection(`users/${uid}/materials/${mat.id}/chunks`).get();
+      subChunks.docs.forEach((sc) => {
+        const data = sc.data();
+        allDocsSnapshot.docs.push({
+          ...sc,
+          data: () => ({
+            ...data,
+            materialId: mat.id,
+            materialTitle: mat.data().title,
+          }),
+        } as any);
+      });
+    }
+  }
+
+  const scored: Array<{ doc: any; score: number }> = [];
+
+  for (const doc of allDocsSnapshot.docs) {
+    const data = doc.data();
+    let embValues: number[] | null = null;
+
+    if (data.embedding && typeof data.embedding.toArray === "function") {
+      embValues = data.embedding.toArray();
+    } else if (data.embedding && Array.isArray(data.embedding._values)) {
+      embValues = data.embedding._values;
+    } else if (Array.isArray(data.embedding)) {
+      embValues = data.embedding;
+    }
+
+    if (embValues && embValues.length > 0) {
+      let dot = 0;
+      let normA = 0;
+      let normB = 0;
+      for (let i = 0; i < Math.min(queryVector.length, embValues.length); i++) {
+        dot += queryVector[i] * embValues[i];
+        normA += queryVector[i] * queryVector[i];
+        normB += embValues[i] * embValues[i];
+      }
+      const score = normA === 0 || normB === 0 ? 0 : dot / (Math.sqrt(normA) * Math.sqrt(normB));
+      scored.push({ doc: data, score });
+    }
+  }
+
+  scored.sort((a, b) => b.score - a.score);
+
+  return scored.slice(0, limit).map(({ doc, score }) => ({
+    materialId: doc.materialId,
+    materialTitle: doc.materialTitle || "Study Material",
+    chunkOrder: doc.order ?? 0,
+    text: doc.text || "",
+    similarityScore: Number(score.toFixed(4)),
+  }));
+}
+
+/**
+ * Ensures all existing chunks in the user's library have vector embeddings.
+ */
+export async function syncMaterialChunksEmbeddings(
+  uid: string
+): Promise<{ totalChunks: number; newlyEmbedded: number }> {
+  const materials = await adminDb.collection(`users/${uid}/materials`).get();
+  let totalChunks = 0;
+  let newlyEmbedded = 0;
+
+  for (const mat of materials.docs) {
+    const matData = mat.data();
+    const chunksSnapshot = await adminDb
+      .collection(`users/${uid}/materials/${mat.id}/chunks`)
+      .orderBy("order", "asc")
+      .get();
+
+    totalChunks += chunksSnapshot.size;
+    const missingDocs: Array<{ doc: FirebaseFirestore.QueryDocumentSnapshot; text: string; order: number }> = [];
+
+    for (const chunkDoc of chunksSnapshot.docs) {
+      const cdata = chunkDoc.data();
+      if (!cdata.embedding) {
+        missingDocs.push({
+          doc: chunkDoc,
+          text: cdata.text || "",
+          order: cdata.order ?? 0,
+        });
+      }
+    }
+
+    if (missingDocs.length > 0) {
+      const texts = missingDocs.map((m) => m.text);
+      const embeddings = await embedBatch(texts);
+
+      const batch = adminDb.batch();
+      missingDocs.forEach((item, idx) => {
+        if (embeddings[idx] && embeddings[idx].length === 768) {
+          const vec = FieldValue.vector(embeddings[idx]);
+          const updateData = {
+            order: item.order,
+            text: item.text,
+            materialId: mat.id,
+            materialTitle: matData.title || "Study Material",
+            subjectId: matData.subjectId,
+            topicId: matData.topicId,
+            uid,
+            embedding: vec,
+          };
+
+          batch.update(item.doc.ref, { embedding: vec });
+          const unifiedRef = adminDb.collection(`users/${uid}/chunks`).doc(`${mat.id}_${item.order}`);
+          batch.set(unifiedRef, updateData, { merge: true });
+          newlyEmbedded++;
+        }
+      });
+      await batch.commit();
+    }
+  }
+
+  return { totalChunks, newlyEmbedded };
 }
 
 // ----------------- CONCEPTS & LINKS -----------------

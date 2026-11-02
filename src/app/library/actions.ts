@@ -41,15 +41,18 @@ export async function createSubjectAction(formData: {
 }) {
   const user = await requireUser();
   const existing = await getSubjects(user.uid);
-  const newSubject = await createSubject(user.uid, {
+  const subjectPayload: any = {
     name: formData.name.trim(),
-    marathiName: formData.marathiName?.trim() || undefined,
     color: formData.color,
     icon: formData.icon || "BookOpen",
     order: existing.length,
     createdAt: new Date().toISOString(),
-  });
+  };
+  if (formData.marathiName?.trim()) {
+    subjectPayload.marathiName = formData.marathiName.trim();
+  }
 
+  const newSubject = await createSubject(user.uid, subjectPayload);
   revalidatePath("/library");
   return newSubject;
 }
@@ -59,7 +62,13 @@ export async function updateSubjectAction(
   data: { name?: string; marathiName?: string; color?: string; icon?: string }
 ) {
   const user = await requireUser();
-  await updateSubject(user.uid, id, data);
+  const cleanData: any = {};
+  if (data.name !== undefined) cleanData.name = data.name.trim();
+  if (data.marathiName !== undefined) cleanData.marathiName = data.marathiName.trim() || null;
+  if (data.color !== undefined) cleanData.color = data.color;
+  if (data.icon !== undefined) cleanData.icon = data.icon;
+
+  await updateSubject(user.uid, id, cleanData);
   revalidatePath("/library");
 }
 
@@ -83,14 +92,17 @@ export async function createTopicAction(formData: {
   examDate?: string | null;
 }) {
   const user = await requireUser();
-  const newTopic = await createTopic(user.uid, {
+  const topicPayload: any = {
     subjectId: formData.subjectId,
     name: formData.name.trim(),
-    marathiName: formData.marathiName?.trim() || undefined,
     examDate: formData.examDate || null,
     createdAt: new Date().toISOString(),
-  });
+  };
+  if (formData.marathiName?.trim()) {
+    topicPayload.marathiName = formData.marathiName.trim();
+  }
 
+  const newTopic = await createTopic(user.uid, topicPayload);
   revalidatePath("/library");
   return newTopic;
 }
@@ -100,7 +112,12 @@ export async function updateTopicAction(
   data: { name?: string; marathiName?: string; examDate?: string | null }
 ) {
   const user = await requireUser();
-  await updateTopic(user.uid, id, data);
+  const cleanData: any = {};
+  if (data.name !== undefined) cleanData.name = data.name.trim();
+  if (data.marathiName !== undefined) cleanData.marathiName = data.marathiName.trim() || null;
+  if (data.examDate !== undefined) cleanData.examDate = data.examDate || null;
+
+  await updateTopic(user.uid, id, cleanData);
   revalidatePath("/library");
 }
 
@@ -124,18 +141,22 @@ export async function createMaterialAction(data: {
   // Partition raw text into chunks of ~2,000 words
   const { chunks, wordCount } = chunkText(data.rawText, 2000);
 
+  const materialPayload: any = {
+    topicId: data.topicId,
+    subjectId: data.subjectId,
+    title: data.title.trim(),
+    sourceType: data.sourceType,
+    wordCount,
+    chunkCount: chunks.length,
+    createdAt: new Date().toISOString(),
+  };
+  if (data.sourceUrl) {
+    materialPayload.sourceUrl = data.sourceUrl;
+  }
+
   const { material } = await createMaterialWithChunks(
     user.uid,
-    {
-      topicId: data.topicId,
-      subjectId: data.subjectId,
-      title: data.title.trim(),
-      sourceType: data.sourceType,
-      sourceUrl: data.sourceUrl || undefined,
-      wordCount,
-      chunkCount: chunks.length,
-      createdAt: new Date().toISOString(),
-    },
+    materialPayload,
     chunks
   );
 

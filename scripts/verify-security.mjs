@@ -81,6 +81,7 @@ const aiRoutes = [
   "src/app/api/blank-page/evaluate/route.ts",
   "src/app/api/apprentice/chat/route.ts",
   "src/app/api/apprentice/end-lesson/route.ts",
+  "src/app/api/archive/ask/route.ts",
 ];
 
 for (const r of aiRoutes) {

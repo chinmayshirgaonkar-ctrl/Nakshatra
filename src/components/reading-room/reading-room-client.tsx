@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useSearchParams } from "next/navigation";
 import { Material, MaterialChunk, Concept, Subject, Topic } from "@/lib/types/models";
 import { ReadingProgress } from "./reading-progress";
 import { SelectionMenu } from "./selection-menu";
@@ -79,6 +80,23 @@ export function ReadingRoomClient({
 
   const contentRef = React.useRef<HTMLDivElement>(null);
   const activeSecondsRef = React.useRef(0);
+
+  const searchParams = useSearchParams();
+  const requestedChunk = searchParams?.get("chunk");
+
+  // Scroll to cited chunk if opened from Archive citation
+  React.useEffect(() => {
+    if (requestedChunk !== null && requestedChunk !== undefined) {
+      setActiveTab("original");
+      const timer = setTimeout(() => {
+        const el = document.getElementById(`chunk-${requestedChunk}`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+  }, [requestedChunk]);
 
   // Focus mode listener for Escape key
   React.useEffect(() => {
@@ -259,54 +277,71 @@ export function ReadingRoomClient({
       ? isStreamingSummary
       : !!tabLoading[`${activeTab}_${language}`];
 
-  // Original Text with Concept Highlight
+  // Original Text with Concept Highlight and Chunk Anchors
   const renderOriginalText = () => {
-    const fullText = chunks.map((c) => c.text).join("\n\n");
-    if (!concepts || concepts.length === 0) {
-      return (
-        <div className="whitespace-pre-line font-serif text-ivory/90">
-          {fullText}
-        </div>
-      );
-    }
-
-    // Build regex to match concept names
-    const sortedConcepts = [...concepts].sort((a, b) => b.name.length - a.name.length);
+    const sortedConcepts = [...(concepts || [])].sort((a, b) => b.name.length - a.name.length);
     const escapedTerms = sortedConcepts.map((c) =>
       c.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
     );
-    const regex = new RegExp(`\\b(${escapedTerms.join("|")})\\b`, "gi");
-
-    const parts = fullText.split(regex);
+    const regex = escapedTerms.length > 0 ? new RegExp(`\\b(${escapedTerms.join("|")})\\b`, "gi") : null;
 
     return (
-      <div className="whitespace-pre-line font-serif text-ivory/90 selection:bg-gold/30">
-        {parts.map((part, i) => {
-          const matchedConcept = sortedConcepts.find(
-            (c) => c.name.toLowerCase() === part.toLowerCase()
+      <div className="space-y-6">
+        {chunks.map((chunk) => {
+          const isTarget = requestedChunk !== null && Number(requestedChunk) === chunk.order;
+          const parts = regex ? chunk.text.split(regex) : [chunk.text];
+
+          return (
+            <div
+              key={chunk.id}
+              id={`chunk-${chunk.order}`}
+              className={cn(
+                "p-5 rounded-2xl border transition-all duration-500",
+                isTarget
+                  ? "border-gold bg-gold/15 shadow-astral ring-2 ring-gold/60"
+                  : "border-gold/15 bg-veil/20"
+              )}
+            >
+              <div className="flex items-center justify-between pb-2 mb-3 border-b border-gold/10 text-[10px] font-mono text-gold-soft">
+                <span>Passage Chunk {chunk.order + 1}</span>
+                {isTarget && (
+                  <span className="px-2.5 py-0.5 rounded-full bg-gold text-night font-bold uppercase tracking-wider text-[9px] shadow-astral animate-pulse">
+                    Cited In Archive Answer
+                  </span>
+                )}
+              </div>
+
+              <div className="whitespace-pre-line font-serif text-ivory/90 selection:bg-gold/30">
+                {parts.map((part, i) => {
+                  const matchedConcept = sortedConcepts.find(
+                    (c) => c.name.toLowerCase() === part.toLowerCase()
+                  );
+
+                  if (matchedConcept) {
+                    return (
+                      <span
+                        key={i}
+                        onMouseEnter={(e) => {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          setHoveredConcept({
+                            concept: matchedConcept,
+                            x: rect.left,
+                            y: rect.bottom + 8,
+                          });
+                        }}
+                        onMouseLeave={() => setHoveredConcept(null)}
+                        className="relative cursor-pointer font-medium text-gold border-b border-gold/40 hover:bg-gold/15 hover:border-gold px-0.5 rounded transition-colors duration-150"
+                      >
+                        {part}
+                      </span>
+                    );
+                  }
+
+                  return <React.Fragment key={i}>{part}</React.Fragment>;
+                })}
+              </div>
+            </div>
           );
-
-          if (matchedConcept) {
-            return (
-              <span
-                key={i}
-                onMouseEnter={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  setHoveredConcept({
-                    concept: matchedConcept,
-                    x: rect.left,
-                    y: rect.bottom + 8,
-                  });
-                }}
-                onMouseLeave={() => setHoveredConcept(null)}
-                className="relative cursor-pointer font-medium text-gold border-b border-gold/40 hover:bg-gold/15 hover:border-gold px-0.5 rounded transition-colors duration-150"
-              >
-                {part}
-              </span>
-            );
-          }
-
-          return <React.Fragment key={i}>{part}</React.Fragment>;
         })}
       </div>
     );

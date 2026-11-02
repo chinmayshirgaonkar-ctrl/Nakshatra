@@ -25,8 +25,18 @@ export function getAdminAuth(): admin.auth.Auth {
   return getAdminApp().auth();
 }
 
+let adminDbInstance: FirebaseFirestore.Firestore | null = null;
+
 export function getAdminDb(): FirebaseFirestore.Firestore {
-  return getAdminApp().firestore();
+  if (!adminDbInstance) {
+    adminDbInstance = getAdminApp().firestore();
+    try {
+      adminDbInstance.settings({ ignoreUndefinedProperties: true });
+    } catch {
+      // Settings already applied or cannot be reset
+    }
+  }
+  return adminDbInstance;
 }
 
 // Proxies for direct export compatibility
