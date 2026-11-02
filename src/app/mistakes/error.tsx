@@ -14,7 +14,6 @@ export default function ErrorBoundary({
       error={error}
       reset={reset}
       chamberName="Museum of Mistakes"
-      marathiName="चुकांचे संग्रहालय"
     />
   );
 }

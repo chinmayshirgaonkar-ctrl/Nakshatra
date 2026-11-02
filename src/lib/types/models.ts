@@ -110,7 +110,7 @@ export interface AiOutput {
   id: string;
   materialId: string;
   kind: AiOutputKind;
-  language: "en" | "mr";
+  language?: string;
   content: any; // JSON structured payload
   model: string;
   createdAt: string;
@@ -225,16 +225,16 @@ export interface AiCrossSubjectThread {
 
 export interface ObservatoryOverviewData {
   greetingEn: string;
-  greetingMr: string;
+  greetingMr?: string;
   dateEn: string;
-  dateMr: string;
+  dateMr?: string;
   totalStars: number;
   averageSkyBrightness: number;
   weeklyMinutes: ObservatoryWeeklyDay[];
   fadingStars: Concept[];
   moonPhases: any[];
   streakDays: number;
-  currentMoonPhase: { en: string; mr: string; fraction: number };
+  currentMoonPhase: { en: string; mr?: string; fraction: number };
   examCountdowns: ExamCountdownItem[];
   aiThread: AiCrossSubjectThread | null;
 }
@@ -312,7 +312,7 @@ export interface ApprenticeLesson {
   conceptName: string;
   subjectId: string;
   topicId: string;
-  language: "en" | "mr";
+  language?: string;
   messages: ApprenticeMessage[];
   gapReport?: ApprenticeGapReport;
   createdAt: string;

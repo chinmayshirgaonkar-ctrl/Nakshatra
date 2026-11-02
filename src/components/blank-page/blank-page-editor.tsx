@@ -20,7 +20,6 @@ interface BlankPageEditorProps {
   subject?: Subject;
   concepts: Concept[];
   durationMinutes: number | null;
-  language: "en" | "mr";
   onSubmitRecall: (text: string, elapsedSeconds: number) => Promise<void>;
   onCancel: () => void;
 }
@@ -30,7 +29,6 @@ export function BlankPageEditor({
   subject,
   concepts,
   durationMinutes,
-  language,
   onSubmitRecall,
   onCancel,
 }: BlankPageEditorProps) {
@@ -189,8 +187,8 @@ export function BlankPageEditor({
       {/* Parchment Writing Sheet */}
       <div className="relative flex-1 rounded-[28px] border border-gold/25 bg-[#0e121e] p-6 md:p-10 shadow-2xl backdrop-blur-2xl overflow-hidden flex flex-col min-h-[520px]">
         {/* Subtle decorative watermark */}
-        <div className="pointer-events-none absolute right-8 bottom-8 text-gold/5 font-tiro text-7xl select-none">
-          कोरा कागद
+        <div className="pointer-events-none absolute right-8 bottom-8 text-gold/5 font-fraunces text-7xl select-none">
+          Active Recall
         </div>
 
         {words === 0 && (
@@ -220,8 +218,8 @@ export function BlankPageEditor({
             <span>{concepts.length} target stars</span>
           </div>
 
-          <div className="text-gold-soft font-tiro">
-            {language === "mr" ? "स्मरण विधी प्रगतीत" : "Pure Retrieval Mode"}
+          <div className="text-gold-soft font-mono">
+            Pure Retrieval Mode
           </div>
         </div>
       </div>

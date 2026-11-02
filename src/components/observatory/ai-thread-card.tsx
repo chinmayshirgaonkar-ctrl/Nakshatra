@@ -17,8 +17,6 @@ export function AiThreadCard({ thread }: AiThreadCardProps) {
           <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
             Cross-Disciplinary Bridge
           </span>
-          <span className="h-1 w-1 rounded-full bg-gold/50" />
-          <span className="font-tiro text-xs text-mist">अदृश्य दुवा</span>
         </div>
         <h3 className="font-fraunces text-2xl font-light text-ivory">
           A Thread You Didn&apos;t Notice
@@ -44,8 +42,6 @@ export function AiThreadCard({ thread }: AiThreadCardProps) {
             <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
               A Thread You Didn&apos;t Notice
             </span>
-            <span className="h-1 w-1 rounded-full bg-gold/50" />
-            <span className="font-tiro text-xs text-mist">कधीही न पाहिलेला दुवा</span>
           </div>
           <h3 className="font-fraunces text-2xl font-light text-ivory tracking-tight">
             {thread.connection}

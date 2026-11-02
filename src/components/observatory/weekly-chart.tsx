@@ -20,8 +20,6 @@ export function WeeklyChart({ days }: WeeklyChartProps) {
             <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
               Weekly Rhythm
             </span>
-            <span className="h-1 w-1 rounded-full bg-gold/50" />
-            <span className="font-tiro text-xs text-mist">साप्ताहिक अभ्यास</span>
           </div>
           <h3 className="font-fraunces text-2xl font-light text-ivory mt-1">
             Minutes Studied

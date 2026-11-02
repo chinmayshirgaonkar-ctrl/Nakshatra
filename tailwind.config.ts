@@ -68,8 +68,6 @@ const config: Config = {
       fontFamily: {
         fraunces: ["var(--font-fraunces)", "serif"],
         manrope: ["var(--font-manrope)", "sans-serif"],
-        tiro: ["var(--font-tiro-marathi)", "serif"],
-        devanagari: ["var(--font-noto-devanagari)", "sans-serif"],
         mono: ["var(--font-jetbrains-mono)", "monospace"],
       },
       boxShadow: {

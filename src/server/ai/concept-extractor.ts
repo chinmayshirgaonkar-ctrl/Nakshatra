@@ -10,7 +10,6 @@ export interface ConceptExtractionInput {
   subjectId: string;
   text: string;
   existingConcepts?: { id: string; name: string }[];
-  language?: "en" | "mr";
   regenerate?: boolean;
 }
 
@@ -26,12 +25,11 @@ export async function extractConceptsFromText({
   subjectId,
   text,
   existingConcepts = [],
-  language = "en",
   regenerate = false,
 }: ConceptExtractionInput): Promise<ConceptExtractionResult> {
   // 1. Check Firestore AI cache if not regenerating
   if (!regenerate) {
-    const cached = await checkAiCache(uid, materialId, "concept_extraction", language);
+    const cached = await checkAiCache(uid, materialId, "concept_extraction", "en");
     if (cached && cached.concepts) {
       return cached;
     }
@@ -46,14 +44,13 @@ export async function extractConceptsFromText({
     .map((c) => c.name)
     .join(", ");
 
-  const systemInstruction = `You are the celestial cartographer of "Nakshatra" (नक्षत्र), an antique midnight observatory learning operating system.
+  const systemInstruction = `You are the celestial cartographer of "Nakshatra", an antique midnight observatory learning operating system.
 Your mission is to chart the night sky by extracting 5 to 25 core foundational concepts (stars) from the provided study material, and mapping their relational lines (constellations).
 
 GUIDELINES:
 1. Extract between 5 and 25 distinct, essential concepts. Avoid superficial words; focus on testable, profound principles, laws, theorems, or mechanisms.
 2. For each concept:
    - "name": Concise title (1-4 words).
-   - "marathiName": Marathi equivalent/translation if possible (or empty string).
    - "definition": A lucid, precise summary explanation (25 to 50 words).
    - "importance": Integer from 1 to 5 (5 = cornerstone axiom, 1 = specialized facet).
 3. "relations": Identify relationships between the new concepts:
@@ -65,11 +62,11 @@ GUIDELINES:
    Here are concept names that already exist elsewhere in the user's constellation:
    [${existingConceptNames || "None yet"}]
    If any new concept strongly connects or parallels an existing concept from this list, create a relation entry with "to" set to that existing concept name!
-5. ${language === "mr" ? "Provide definitions primarily in Marathi (मराठी) with English terms in parentheses." : "Provide definitions in English."}
+5. Provide all definitions in English.
 6. Output format: You MUST return a single JSON object with two top-level keys:
    {
      "concepts": [
-       { "name": "...", "marathiName": "...", "definition": "...", "importance": 1-5 }
+       { "name": "...", "definition": "...", "importance": 1-5 }
      ],
      "relations": [
        { "from": "...", "to": "...", "relationText": "...", "strength": 1-5 }
@@ -102,7 +99,6 @@ ${text.slice(0, 15000)} // Ensure under safe token ceiling`;
                   type: "OBJECT",
                   properties: {
                     name: { type: "STRING" },
-                    marathiName: { type: "STRING" },
                     definition: { type: "STRING" },
                     importance: { type: "INTEGER" },
                   },
@@ -169,7 +165,6 @@ ${text.slice(0, 15000)} // Ensure under safe token ceiling`;
       subjectId,
       materialId,
       name: c.name,
-      marathiName: c.marathiName || undefined,
       definition: c.definition,
       importance: c.importance,
       fsrs: fsrsData,
@@ -188,7 +183,7 @@ ${text.slice(0, 15000)} // Ensure under safe token ceiling`;
   const result: ConceptExtractionResult = { concepts, links };
 
   // Cache in Firestore
-  await saveAiCache(uid, materialId, "concept_extraction", language, result, modelName);
+  await saveAiCache(uid, materialId, "concept_extraction", "en", result, modelName);
 
   return result;
 }

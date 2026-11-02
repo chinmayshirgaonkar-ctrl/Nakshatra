@@ -202,13 +202,6 @@ export function SkyCanvas({
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillText(tc.topic.name.toUpperCase(), tc.x, tc.y - tc.radius - 12);
-
-          // Marathi subtitle if available
-          if (tc.topic.marathiName) {
-            ctx.font = `400 ${Math.max(9, Math.min(11, 9 / camera.current.zoom))}px 'Tiro Devanagari Marathi', serif`;
-            ctx.fillStyle = "rgba(230, 175, 46, 0.4)";
-            ctx.fillText(tc.topic.marathiName, tc.x, tc.y - tc.radius - 24);
-          }
           ctx.restore();
         }
       });

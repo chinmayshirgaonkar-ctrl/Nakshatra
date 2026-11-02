@@ -24,7 +24,7 @@ export function ThemeToggle() {
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className="relative flex items-center justify-center w-9 h-9 rounded-full border border-gold/25 bg-deep/80 hover:bg-veil text-gold hover:text-gold-soft transition-all duration-300 shadow-sm hover:shadow-astral focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-      title={isDark ? "Switch to Parchment (दिन)" : "Switch to Midnight (रात्र)"}
+      title={isDark ? "Switch to Parchment" : "Switch to Midnight"}
       aria-label="Toggle celestial theme"
     >
       {isDark ? (

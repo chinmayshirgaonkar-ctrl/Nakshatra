@@ -37,7 +37,7 @@ export async function streamSummary({
   materialId: string;
   text: string;
   length: SummaryLength;
-  language?: "en" | "mr";
+  language?: string;
 }): Promise<ReadableStream<Uint8Array>> {
   const ai = getGenAI();
   const model = getPrimaryModel();
@@ -53,14 +53,14 @@ export async function streamSummary({
     instructionDetails = "Deliver a magazine-quality masterclass deep dive. Walk through the intellectual history, exact principles, step-by-step mechanics, subtleties, counterarguments, and profound practical synthesis.";
   }
 
-  const systemInstruction = `You are the master scholar of "Nakshatra" (नक्षत्र), an antique midnight observatory learning sanctuary.
+  const systemInstruction = `You are the master scholar of "Nakshatra", an antique midnight observatory learning sanctuary.
 Your task is to write a distraction-free, magazine-quality ${length} summary of the provided text.
 
 REQUIREMENTS:
 - Word count: approximately ${wordTarget}.
 - Style: ${instructionDetails}
 - Tone: Elegant, lucid, intellectually exhilarating, beautifully formatted in Markdown (headings, italics, bullet points).
-- Language: ${language === "mr" ? "Write fluently in Marathi (मराठी) using authentic vocabulary with English technical terms in brackets where helpful." : "Write in pristine English."}
+- Language: Write in pristine English.
 - Do not repeat boilerplate; plunge straight into the ideas.`;
 
   const responseStream = await ai.models.generateContentStream({
@@ -94,7 +94,7 @@ REQUIREMENTS:
 
         // Save complete streamed summary into Firestore cache
         if (fullAccumulated.trim()) {
-          await saveAiCache(uid, materialId, kind, language, fullAccumulated, model);
+          await saveAiCache(uid, materialId, kind, "en", fullAccumulated, model);
         }
       } catch (err: any) {
         console.error("Stream summary error:", err);
@@ -117,11 +117,11 @@ export async function generateKeyPoints({
   uid: string;
   materialId: string;
   text: string;
-  language?: "en" | "mr";
+  language?: string;
   regenerate?: boolean;
 }) {
   if (!regenerate) {
-    const cached = await checkAiCache(uid, materialId, "key_points", language);
+    const cached = await checkAiCache(uid, materialId, "key_points", "en");
     if (cached) return cached;
   }
 
@@ -136,7 +136,7 @@ For EACH point:
 - "supportingQuote": The EXACT sentence or verbatim excerpt from the source text that proves this point.
 - "explanation": Lucid 2-3 sentence commentary clarifying why this is pivotal.
 
-Language: ${language === "mr" ? "Translate points and explanations into Marathi (मराठी), keeping the supportingQuote in original source language." : "Provide in English."}
+Language: Provide in pristine English.
 
 Output format: Return JSON strictly conforming to:
 {
@@ -163,7 +163,7 @@ Output format: Return JSON strictly conforming to:
     return KeyPointsResponseSchema.parse(normalized);
   });
 
-  await saveAiCache(uid, materialId, "key_points", language, result, model);
+  await saveAiCache(uid, materialId, "key_points", "en", result, model);
   return result;
 }
 
@@ -180,11 +180,11 @@ export async function generateGlossary({
   uid: string;
   materialId: string;
   text: string;
-  language?: "en" | "mr";
+  language?: string;
   regenerate?: boolean;
 }) {
   if (!regenerate) {
-    const cached = await checkAiCache(uid, materialId, "glossary", language);
+    const cached = await checkAiCache(uid, materialId, "glossary", "en");
     if (cached) return cached;
   }
 
@@ -195,16 +195,15 @@ export async function generateGlossary({
 Extract 8 to 18 essential technical or philosophical terms from the provided text.
 For each term:
 - "term": The term name (English)
-- "marathiTerm": Marathi translation/transliteration (मराठी नाव)
 - "definition": A razor-sharp, unambiguous 20-40 word definition.
 - "context": Brief mention of how it is used in this specific text.
 
-Language: ${language === "mr" ? "Provide definitions primarily in Marathi with English technical terms." : "Provide definitions in English."}
+Language: Provide definitions in English.
 
 Output format: Return JSON strictly conforming to:
 {
   "terms": [
-    { "term": "...", "marathiTerm": "...", "definition": "...", "context": "..." }
+    { "term": "...", "definition": "...", "context": "..." }
   ]
 }`;
 
@@ -226,7 +225,7 @@ Output format: Return JSON strictly conforming to:
     return GlossaryResponseSchema.parse(normalized);
   });
 
-  await saveAiCache(uid, materialId, "glossary", language, result, model);
+  await saveAiCache(uid, materialId, "glossary", "en", result, model);
   return result;
 }
 
@@ -243,11 +242,11 @@ export async function generateEli10({
   uid: string;
   materialId: string;
   text: string;
-  language?: "en" | "mr";
+  language?: string;
   regenerate?: boolean;
 }) {
   if (!regenerate) {
-    const cached = await checkAiCache(uid, materialId, "eli10", language);
+    const cached = await checkAiCache(uid, materialId, "eli10", "en");
     if (cached) return cached;
   }
 
@@ -265,7 +264,7 @@ Structure:
   - "analogy": The vivid story or metaphor explaining a tricky mechanism.
   - "takeaway": One simple sentence the child will remember forever.
 
-Language: ${language === "mr" ? "Write in warm, captivating Marathi (मराठी)." : "Write in engaging English."}
+Language: Write in engaging English.
 
 Output format: Return JSON strictly conforming to:
 {
@@ -290,7 +289,7 @@ Output format: Return JSON strictly conforming to:
     return Eli10ResponseSchema.parse(parsed);
   });
 
-  await saveAiCache(uid, materialId, "eli10", language, result, model);
+  await saveAiCache(uid, materialId, "eli10", "en", result, model);
   return result;
 }
 
@@ -307,11 +306,11 @@ export async function generateMindMap({
   uid: string;
   materialId: string;
   text: string;
-  language?: "en" | "mr";
+  language?: string;
   regenerate?: boolean;
 }) {
   if (!regenerate) {
-    const cached = await checkAiCache(uid, materialId, "mindmap", language);
+    const cached = await checkAiCache(uid, materialId, "mindmap", "en");
     if (cached) return cached;
   }
 
@@ -327,7 +326,7 @@ Requirements:
 4. Each node must have "name" (concise, 1-3 words) and optional "description" (1 short sentence).
 5. Max depth: 3 levels (Root -> Branches -> Sub-branches).
 
-Language: ${language === "mr" ? "Provide labels in Marathi (मराठी) with English in parentheses if needed." : "Provide in English."}
+Language: Provide in English.
 
 Output format: Return JSON strictly conforming to:
 {
@@ -361,7 +360,7 @@ Output format: Return JSON strictly conforming to:
     return MindMapResponseSchema.parse(parsed);
   });
 
-  await saveAiCache(uid, materialId, "mindmap", language, result, model);
+  await saveAiCache(uid, materialId, "mindmap", "en", result, model);
   return result;
 }
 
@@ -375,14 +374,14 @@ export async function explainSelection({
 }: {
   selection: string;
   surroundingContext?: string;
-  language?: "en" | "mr";
+  language?: string;
 }) {
   const ai = getGenAI();
   const model = getLiteModel();
 
   const systemInstruction = `You are the wise astronomical tutor of Nakshatra.
 Provide a crystal-clear, illuminating 2-3 sentence explanation of the selected phrase in context, followed by an intuitive mental model or metaphor.
-Language: ${language === "mr" ? "मराठी (Marathi)" : "English"}.`;
+Language: English.`;
 
   const response = await ai.models.generateContent({
     model,
@@ -414,18 +413,17 @@ export async function makeStarFromSelection({
   uid: string;
   material: Material;
   selection: string;
-  language?: "en" | "mr";
+  language?: string;
 }): Promise<Concept> {
   const ai = getGenAI();
   const model = getLiteModel();
 
   const systemInstruction = `From the selected passage, distill:
 1. "name": Concise concept title (1-4 words).
-2. "marathiName": Marathi equivalent if possible.
-3. "definition": A rigorous, lucid definition (20-40 words).
-4. "importance": Integer from 1 to 5.
+2. "definition": A rigorous, lucid definition (20-40 words).
+3. "importance": Integer from 1 to 5.
 
-Output JSON: { "name": "...", "marathiName": "...", "definition": "...", "importance": 4 }`;
+Output JSON: { "name": "...", "definition": "...", "importance": 4 }`;
 
   const response = await ai.models.generateContent({
     model,
@@ -456,7 +454,6 @@ Output JSON: { "name": "...", "marathiName": "...", "definition": "...", "import
     subjectId: material.subjectId,
     materialId: material.id,
     name: parsed.name || selection.slice(0, 30),
-    marathiName: parsed.marathiName || undefined,
     definition: parsed.definition || selection,
     importance: parsed.importance || 3,
     fsrs: fsrsData,
@@ -476,7 +473,7 @@ export async function quizSelection({
 }: {
   selection: string;
   surroundingContext?: string;
-  language?: "en" | "mr";
+  language?: string;
 }) {
   const ai = getGenAI();
   const model = getLiteModel();
@@ -489,7 +486,7 @@ Format JSON:
   "answer": "Definitive, concise model answer (2-3 sentences)",
   "hint": "Subtle clue pointing toward the right mechanism"
 }
-Language: ${language === "mr" ? "मराठी (Marathi)" : "English"}.`;
+Language: English.`;
 
   const response = await ai.models.generateContent({
     model,

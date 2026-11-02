@@ -7,14 +7,12 @@ import { cn } from "@/lib/utils";
 
 interface SelectionMenuProps {
   materialId: string;
-  language: "en" | "mr";
   containerRef: React.RefObject<HTMLDivElement | null>;
   onStarCreated?: () => void;
 }
 
 export function SelectionMenu({
   materialId,
-  language,
   containerRef,
   onStarCreated,
 }: SelectionMenuProps) {
@@ -73,7 +71,6 @@ export function SelectionMenu({
           action: "explain",
           selection: selectedText,
           materialId,
-          language,
         }),
       });
       const data = await res.json();
@@ -100,7 +97,6 @@ export function SelectionMenu({
           action: "make-star",
           selection: selectedText,
           materialId,
-          language,
         }),
       });
       const data = await res.json();
@@ -131,7 +127,6 @@ export function SelectionMenu({
           action: "quiz",
           selection: selectedText,
           materialId,
-          language,
         }),
       });
       const data = await res.json();

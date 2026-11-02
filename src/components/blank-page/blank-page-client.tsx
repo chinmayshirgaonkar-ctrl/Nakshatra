@@ -25,7 +25,6 @@ export function BlankPageClient({
   const [mode, setMode] = useState<"setup" | "editor" | "results">("setup");
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [selectedDuration, setSelectedDuration] = useState<number | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState<"en" | "mr">("en");
 
   // Recall manuscript data
   const [recallText, setRecallText] = useState("");
@@ -45,10 +44,9 @@ export function BlankPageClient({
     }
   }, [requestedTopicId, initialTopics, selectedTopic]);
 
-  const handleStartRecall = (topic: Topic, durationMinutes: number | null, language: "en" | "mr") => {
+  const handleStartRecall = (topic: Topic, durationMinutes: number | null) => {
     setSelectedTopic(topic);
     setSelectedDuration(durationMinutes);
-    setSelectedLanguage(language);
     setMode("editor");
   };
 
@@ -64,7 +62,6 @@ export function BlankPageClient({
         topicId: selectedTopic.id,
         recallText: text,
         durationSeconds: durationSec,
-        language: selectedLanguage,
       }),
     });
 
@@ -112,7 +109,6 @@ export function BlankPageClient({
           subject={currentSubject}
           concepts={currentTopicConcepts}
           durationMinutes={selectedDuration}
-          language={selectedLanguage}
           onSubmitRecall={handleSubmitRecall}
           onCancel={handleReset}
         />

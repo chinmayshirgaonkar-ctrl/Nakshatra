@@ -71,7 +71,6 @@ function LoginForm() {
               <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
                 Private Sanctuary
               </span>
-              <p className="font-tiro text-xs text-mist">एकल वेधशाळा</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-gold/20 bg-veil text-[11px] font-mono text-gold-soft">

@@ -3,13 +3,11 @@ import { Loader2, Star } from "lucide-react";
 
 interface ChamberSkeletonProps {
   chamberName: string;
-  marathiName: string;
   subtitle?: string;
 }
 
 export function ChamberSkeleton({
   chamberName,
-  marathiName,
   subtitle = "Aligning celestial coordinates...",
 }: ChamberSkeletonProps) {
   return (
@@ -21,8 +19,6 @@ export function ChamberSkeleton({
             <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
               {chamberName}
             </span>
-            <span className="h-1 w-1 rounded-full bg-gold/50" />
-            <span className="font-tiro text-xs text-mist">{marathiName}</span>
           </div>
           <div className="h-8 w-48 rounded-xl bg-veil animate-pulse" />
         </div>
@@ -39,7 +35,7 @@ export function ChamberSkeleton({
         </div>
 
         <span className="font-mono text-xs uppercase tracking-widest text-gold-soft mb-2">
-          {chamberName} • {marathiName}
+          {chamberName}
         </span>
         <h3 className="font-fraunces text-xl md:text-2xl text-ivory mb-2 font-normal">
           {subtitle}

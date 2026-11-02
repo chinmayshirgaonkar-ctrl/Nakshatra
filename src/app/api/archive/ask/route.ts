@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     const user = await requireUser();
 
     const body = await req.json();
-    const { question, language = "en", conversationHistory = [] } = body;
+    const { question, conversationHistory = [] } = body;
 
     if (!question || typeof question !== "string" || !question.trim()) {
       return NextResponse.json(
@@ -32,7 +32,6 @@ export async function POST(req: NextRequest) {
     const result = await askArchiveQuestion({
       uid: user.uid,
       question: question.trim(),
-      language,
       conversationHistory,
     });
 

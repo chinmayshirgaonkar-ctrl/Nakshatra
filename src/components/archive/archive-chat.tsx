@@ -40,7 +40,6 @@ export function ArchiveChat({ materials, subjects }: ArchiveChatProps) {
   ]);
   const [question, setQuestion] = useState("");
   const [isAsking, setIsAsking] = useState(false);
-  const [language, setLanguage] = useState<"en" | "mr">("en");
   const [isSyncing, setIsSyncing] = useState(false);
   const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
 
@@ -113,7 +112,6 @@ export function ArchiveChat({ materials, subjects }: ArchiveChatProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           question: q,
-          language,
           conversationHistory: messages.map((m) => ({
             role: m.role,
             content: m.content,
@@ -145,9 +143,7 @@ export function ArchiveChat({ materials, subjects }: ArchiveChatProps) {
           id: `error-${Date.now()}`,
           role: "archive",
           content:
-            language === "mr"
-              ? "ग्रंथालयात शोध घेताना अडचण आली. कृपया पुन्हा प्रयत्न करा."
-              : "A celestial disturbance occurred while searching the archive vectors. Please try again.",
+            "A celestial disturbance occurred while searching the archive vectors. Please try again.",
           timestamp: new Date().toISOString(),
         },
       ]);
@@ -210,8 +206,6 @@ export function ArchiveChat({ materials, subjects }: ArchiveChatProps) {
             <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
               Strictly Grounded Retrieval
             </span>
-            <span className="h-1 w-1 rounded-full bg-gold/50" />
-            <span className="font-tiro text-xs text-mist">ग्रंथालय संवाद कक्ष</span>
           </div>
           <h1 className="font-fraunces text-2xl md:text-3xl font-light text-ivory">
             Ask the Archive
@@ -236,32 +230,6 @@ export function ArchiveChat({ materials, subjects }: ArchiveChatProps) {
             <RefreshCw className={`w-3.5 h-3.5 text-gold-soft ${isSyncing ? "animate-spin" : ""}`} />
             <span>{isSyncing ? "Indexing..." : "Sync Vectors"}</span>
           </Button>
-
-          {/* Language Toggle */}
-          <div className="flex items-center gap-1 rounded-full border border-gold/20 bg-veil/50 p-1">
-            <button
-              type="button"
-              onClick={() => setLanguage("en")}
-              className={`px-3 py-1 rounded-full text-xs font-mono transition-colors ${
-                language === "en"
-                  ? "bg-gold text-night font-semibold shadow-astral"
-                  : "text-mist hover:text-ivory"
-              }`}
-            >
-              EN
-            </button>
-            <button
-              type="button"
-              onClick={() => setLanguage("mr")}
-              className={`px-3 py-1 rounded-full text-xs font-tiro transition-colors ${
-                language === "mr"
-                  ? "bg-gold text-night font-semibold shadow-astral"
-                  : "text-mist hover:text-ivory"
-              }`}
-            >
-              मराठी
-            </button>
-          </div>
         </div>
       </div>
 
@@ -410,9 +378,7 @@ export function ArchiveChat({ materials, subjects }: ArchiveChatProps) {
             <div className="rounded-2xl p-4 text-xs font-mono text-mist bg-night/80 border border-gold/20 flex items-center gap-2">
               <Loader2 className="w-3.5 h-3.5 animate-spin text-gold" />
               <span>
-                {language === "mr"
-                  ? "ग्रंथालय वेधशाळेतून संदर्भ शोधत आहे..."
-                  : "Searching Firestore vector index & verifying manuscript citations..."}
+                Searching Firestore vector index & verifying manuscript citations...
               </span>
             </div>
           </div>
@@ -437,11 +403,7 @@ export function ArchiveChat({ materials, subjects }: ArchiveChatProps) {
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             disabled={isAsking}
-            placeholder={
-              language === "mr"
-                ? "आपल्या अभ्यास साहित्याबद्दल काहीही विचारा..."
-                : "Ask anything grounded in your library manuscripts..."
-            }
+            placeholder="Ask anything grounded in your library manuscripts..."
             className="flex-1 bg-transparent text-sm text-ivory placeholder:text-mist/50 focus:outline-none font-manrope"
           />
           <Button

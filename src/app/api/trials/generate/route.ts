@@ -32,7 +32,6 @@ export async function POST(request: NextRequest) {
       count = 5,
       difficulty = "honest",
       types = ["mcq", "true_false_why", "fill_blank", "short_answer"],
-      language = "en",
     } = body;
 
     let candidateConcepts = [];
@@ -68,7 +67,6 @@ export async function POST(request: NextRequest) {
       count: Math.min(20, Math.max(3, count)),
       difficulty,
       types,
-      language: language === "mr" ? "mr" : "en",
     });
 
     return NextResponse.json({ success: true, questions });

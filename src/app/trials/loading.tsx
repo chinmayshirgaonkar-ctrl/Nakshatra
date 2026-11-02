@@ -4,7 +4,6 @@ export default function Loading() {
   return (
     <ChamberSkeleton
       chamberName="The Trials"
-      marathiName="परीक्षा दालन"
       subtitle="Forging Socratic Inquiries & Distractor Orbits..."
     />
   );

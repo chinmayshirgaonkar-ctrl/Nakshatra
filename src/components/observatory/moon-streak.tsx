@@ -7,7 +7,7 @@ import { Sparkles } from "lucide-react";
 interface MoonStreakProps {
   phases: MoonPhaseInfo[];
   streakDays: number;
-  currentPhase: { en: string; mr: string; fraction: number };
+  currentPhase: { en: string; fraction: number };
 }
 
 /**
@@ -89,8 +89,6 @@ export function MoonStreak({ phases, streakDays, currentPhase }: MoonStreakProps
             <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
               Lunar Ephemeris
             </span>
-            <span className="h-1 w-1 rounded-full bg-gold/50" />
-            <span className="font-tiro text-xs text-mist">चंद्रकला सातत्य</span>
           </div>
           <h3 className="font-fraunces text-2xl font-light text-ivory">
             30-Day Moon Phase Streak
@@ -109,7 +107,7 @@ export function MoonStreak({ phases, streakDays, currentPhase }: MoonStreakProps
               {streakDays} Day{streakDays === 1 ? "" : "s"} Active
             </span>
             <span className="text-[10px] text-gold-soft">
-              {currentPhase.en} • {currentPhase.mr}
+              {currentPhase.en}
             </span>
           </div>
         </div>
@@ -150,7 +148,7 @@ export function MoonStreak({ phases, streakDays, currentPhase }: MoonStreakProps
                       {item.date} {isToday ? "(Today)" : ""}
                     </span>
                     <span className="font-fraunces text-ivory font-normal block">
-                      {item.phaseName} ({item.marathiPhaseName})
+                      {item.phaseName}
                     </span>
                     <span className="text-[10px] font-mono text-gold-soft block">
                       {item.hasActivity

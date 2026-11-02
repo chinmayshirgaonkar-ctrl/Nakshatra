@@ -35,7 +35,6 @@ export async function getLibraryDataAction() {
 
 export async function createSubjectAction(formData: {
   name: string;
-  marathiName?: string;
   color: string;
   icon: string;
 }) {
@@ -48,9 +47,6 @@ export async function createSubjectAction(formData: {
     order: existing.length,
     createdAt: new Date().toISOString(),
   };
-  if (formData.marathiName?.trim()) {
-    subjectPayload.marathiName = formData.marathiName.trim();
-  }
 
   const newSubject = await createSubject(user.uid, subjectPayload);
   revalidatePath("/library");
@@ -59,12 +55,11 @@ export async function createSubjectAction(formData: {
 
 export async function updateSubjectAction(
   id: string,
-  data: { name?: string; marathiName?: string; color?: string; icon?: string }
+  data: { name?: string; color?: string; icon?: string }
 ) {
   const user = await requireUser();
   const cleanData: any = {};
   if (data.name !== undefined) cleanData.name = data.name.trim();
-  if (data.marathiName !== undefined) cleanData.marathiName = data.marathiName.trim() || null;
   if (data.color !== undefined) cleanData.color = data.color;
   if (data.icon !== undefined) cleanData.icon = data.icon;
 
@@ -88,7 +83,6 @@ export async function reorderSubjectsAction(orderedIds: string[]) {
 export async function createTopicAction(formData: {
   subjectId: string;
   name: string;
-  marathiName?: string;
   examDate?: string | null;
 }) {
   const user = await requireUser();
@@ -98,9 +92,6 @@ export async function createTopicAction(formData: {
     examDate: formData.examDate || null,
     createdAt: new Date().toISOString(),
   };
-  if (formData.marathiName?.trim()) {
-    topicPayload.marathiName = formData.marathiName.trim();
-  }
 
   const newTopic = await createTopic(user.uid, topicPayload);
   revalidatePath("/library");
@@ -109,12 +100,11 @@ export async function createTopicAction(formData: {
 
 export async function updateTopicAction(
   id: string,
-  data: { name?: string; marathiName?: string; examDate?: string | null }
+  data: { name?: string; examDate?: string | null }
 ) {
   const user = await requireUser();
   const cleanData: any = {};
   if (data.name !== undefined) cleanData.name = data.name.trim();
-  if (data.marathiName !== undefined) cleanData.marathiName = data.marathiName.trim() || null;
   if (data.examDate !== undefined) cleanData.examDate = data.examDate || null;
 
   await updateTopic(user.uid, id, cleanData);

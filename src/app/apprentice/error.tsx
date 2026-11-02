@@ -14,7 +14,6 @@ export default function ErrorBoundary({
       error={error}
       reset={reset}
       chamberName="The Apprentice"
-      marathiName="शिष्य संवाद"
     />
   );
 }

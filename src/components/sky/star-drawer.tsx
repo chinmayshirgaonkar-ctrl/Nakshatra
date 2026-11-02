@@ -94,9 +94,6 @@ export function StarDrawer({
         <h2 className="font-fraunces text-2xl md:text-3xl font-light text-ivory tracking-tight leading-snug">
           {star.concept.name}
         </h2>
-        {star.concept.marathiName && (
-          <p className="font-tiro text-sm text-gold-soft">{star.concept.marathiName}</p>
-        )}
       </div>
 
       {/* Memory Telemetry Card */}

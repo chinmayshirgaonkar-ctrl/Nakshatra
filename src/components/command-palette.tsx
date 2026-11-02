@@ -83,7 +83,7 @@ export function CommandPalette() {
                   No celestial records found.
                 </Command.Empty>
 
-                <Command.Group heading="Celestial Chambers (विभाग)" className="text-[10px] uppercase tracking-widest text-gold/70 px-3 py-1 font-mono">
+                <Command.Group heading="Celestial Chambers" className="text-[10px] uppercase tracking-widest text-gold/70 px-3 py-1 font-mono">
                   <Command.Item
                     onSelect={() => navigateTo("/observatory")}
                     className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-ivory hover:bg-veil/80 cursor-pointer transition-colors"
@@ -91,7 +91,7 @@ export function CommandPalette() {
                     <Compass className="w-4 h-4 text-gold" />
                     <div className="flex flex-col">
                       <span>Observatory</span>
-                      <span className="text-[11px] text-mist font-tiro">वेधशाळा — Today&apos;s Ritual</span>
+                      <span className="text-[11px] text-mist font-manrope">Today&apos;s Ritual</span>
                     </div>
                   </Command.Item>
 
@@ -102,7 +102,7 @@ export function CommandPalette() {
                     <BookOpen className="w-4 h-4 text-gold" />
                     <div className="flex flex-col">
                       <span>Library</span>
-                      <span className="text-[11px] text-mist font-tiro">ग्रंथालय — All Study Material</span>
+                      <span className="text-[11px] text-mist font-manrope">All Study Material</span>
                     </div>
                   </Command.Item>
 
@@ -113,7 +113,7 @@ export function CommandPalette() {
                     <Eye className="w-4 h-4 text-gold" />
                     <div className="flex flex-col">
                       <span>Reading Room</span>
-                      <span className="text-[11px] text-mist font-tiro">वाचनकक्ष — Study One Material</span>
+                      <span className="text-[11px] text-mist font-manrope">Study One Material</span>
                     </div>
                   </Command.Item>
 
@@ -124,7 +124,7 @@ export function CommandPalette() {
                     <Search className="w-4 h-4 text-gold" />
                     <div className="flex flex-col">
                       <span>Ask the Archive</span>
-                      <span className="text-[11px] text-mist font-tiro">ग्रंथालय संवाद — Grounded Vector QA</span>
+                      <span className="text-[11px] text-mist font-manrope">Grounded Vector QA</span>
                     </div>
                   </Command.Item>
 
@@ -135,7 +135,7 @@ export function CommandPalette() {
                     <Sparkles className="w-4 h-4 text-gold" />
                     <div className="flex flex-col">
                       <span>The Sky</span>
-                      <span className="text-[11px] text-mist font-tiro">आकाश — Constellation Map</span>
+                      <span className="text-[11px] text-mist font-manrope">Constellation Map</span>
                     </div>
                   </Command.Item>
 
@@ -146,7 +146,7 @@ export function CommandPalette() {
                     <Swords className="w-4 h-4 text-gold" />
                     <div className="flex flex-col">
                       <span>Trials</span>
-                      <span className="text-[11px] text-mist font-tiro">परीक्षा — Quizzes</span>
+                      <span className="text-[11px] text-mist font-manrope">Quizzes & Assessment</span>
                     </div>
                   </Command.Item>
 
@@ -157,7 +157,7 @@ export function CommandPalette() {
                     <Feather className="w-4 h-4 text-gold" />
                     <div className="flex flex-col">
                       <span>Blank Page</span>
-                      <span className="text-[11px] text-mist font-tiro">कोरा कागद — Free Recall</span>
+                      <span className="text-[11px] text-mist font-manrope">Free Recall</span>
                     </div>
                   </Command.Item>
 
@@ -168,7 +168,7 @@ export function CommandPalette() {
                     <GraduationCap className="w-4 h-4 text-gold" />
                     <div className="flex flex-col">
                       <span>The Apprentice</span>
-                      <span className="text-[11px] text-mist font-tiro">शिष्य — Teach-Back Feynman Mode</span>
+                      <span className="text-[11px] text-mist font-manrope">Teach-Back Feynman Mode</span>
                     </div>
                   </Command.Item>
 
@@ -179,7 +179,7 @@ export function CommandPalette() {
                     <Archive className="w-4 h-4 text-gold" />
                     <div className="flex flex-col">
                       <span>Museum of Mistakes</span>
-                      <span className="text-[11px] text-mist font-tiro">चुकांचे संग्रहालय — Mistakes Repository</span>
+                      <span className="text-[11px] text-mist font-manrope">Mistakes Repository</span>
                     </div>
                   </Command.Item>
                 </Command.Group>

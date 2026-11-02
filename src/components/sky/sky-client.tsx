@@ -138,7 +138,6 @@ export function SkyClient({ initialData }: SkyClientProps) {
       .filter(
         (s) =>
           s.concept.name.toLowerCase().includes(q) ||
-          (s.concept.marathiName && s.concept.marathiName.toLowerCase().includes(q)) ||
           s.topic.name.toLowerCase().includes(q)
       )
       .slice(0, 8);
@@ -183,7 +182,6 @@ export function SkyClient({ initialData }: SkyClientProps) {
           <div className="flex items-center gap-2 rounded-2xl border border-gold/20 bg-deep/80 px-4 py-2 backdrop-blur-xl shadow-lg">
             <Sparkles className="w-4 h-4 text-gold animate-twinkle" />
             <span className="font-fraunces text-sm text-ivory">The Sky</span>
-            <span className="text-xs font-tiro text-mist">आकाश</span>
             <span className="h-1 w-1 rounded-full bg-gold/50" />
             <span className="text-xs font-mono text-gold-soft">
               {stars.length} Star{stars.length === 1 ? "" : "s"}

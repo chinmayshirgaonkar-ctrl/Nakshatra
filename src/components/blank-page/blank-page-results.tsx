@@ -175,10 +175,6 @@ export function BlankPageResults({
             <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
               Active Recall Assessment
             </span>
-            <span className="h-1 w-1 rounded-full bg-gold/50" />
-            <span className="font-tiro text-xs text-mist">
-              {topic.marathiName || "स्मरण चाचणी निकाल"}
-            </span>
           </div>
           <h1 className="font-fraunces text-2xl md:text-3xl font-light text-ivory">
             {topic.name}

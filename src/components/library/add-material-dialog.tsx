@@ -36,7 +36,6 @@ interface AddMaterialDialogProps {
   topics: Topic[];
   onCreateSubject?: (data: {
     name: string;
-    marathiName?: string;
     color: string;
     icon: string;
   }) => Promise<Subject>;
@@ -48,7 +47,6 @@ interface AddMaterialDialogProps {
     sourceType: MaterialSourceType;
     sourceUrl?: string;
     rawText: string;
-    language: "en" | "mr";
   }) => Promise<{ material: { id: string; title: string }; fullText: string }>;
 }
 
@@ -80,7 +78,6 @@ export function AddMaterialDialog({
   const [finalSourceUrl, setFinalSourceUrl] = useState<string | undefined>(undefined);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>("");
   const [selectedTopicId, setSelectedTopicId] = useState<string>("");
-  const [language, setLanguage] = useState<"en" | "mr">("en");
 
   // Inline subject creation
   const [showInlineSubject, setShowInlineSubject] = useState(false);
@@ -212,7 +209,7 @@ export function AddMaterialDialog({
 
     try {
       const compressedDataUrl = await compressImageInBrowser(file, 1600, 0.8);
-      setProcessingStatus("Transcribing Marathi/English handwriting via Gemini Vision...");
+      setProcessingStatus("Transcribing handwriting via Gemini Vision...");
 
       const res = await fetch("/api/ai/transcribe-vision", {
         method: "POST",
@@ -400,7 +397,6 @@ export function AddMaterialDialog({
         sourceType: finalSourceType,
         sourceUrl: finalSourceUrl,
         rawText: finalText.trim(),
-        language,
       });
 
       onOpenChange(false);
@@ -418,10 +414,6 @@ export function AddMaterialDialog({
           <div className="flex items-center gap-2">
             <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
               {step === 1 ? "Deposit Study Scroll" : "Review Manuscript & Partition"}
-            </span>
-            <span className="h-1 w-1 rounded-full bg-gold/50" />
-            <span className="font-tiro text-xs text-mist">
-              {step === 1 ? "साहित्य अंतर्ग्रहण" : "पुनरावलोकन व जतन"}
             </span>
           </div>
           <DialogTitle className="font-fraunces text-2xl font-normal text-ivory">
@@ -564,7 +556,7 @@ export function AddMaterialDialog({
                     Capture or Upload Handwritten Notes
                   </p>
                   <p className="font-manrope text-xs text-mist max-w-sm mb-4">
-                    Takes a photo of whiteboard scribbles, printed handouts, or handwritten notes in English or Marathi. Compressed safely in-browser before OCR.
+                    Takes a photo of whiteboard scribbles, printed handouts, or handwritten notes. Compressed safely in-browser before OCR.
                   </p>
 
                   <label className="cursor-pointer">
@@ -716,7 +708,7 @@ export function AddMaterialDialog({
                   >
                     {subjects.map((s) => (
                       <option key={s.id} value={s.id}>
-                        {s.name} {s.marathiName ? `(${s.marathiName})` : ""}
+                        {s.name}
                       </option>
                     ))}
                   </select>
@@ -801,42 +793,6 @@ export function AddMaterialDialog({
                 onChange={(e) => setFinalText(e.target.value)}
                 className="w-full rounded-2xl border border-gold/20 bg-deep/90 p-4 text-xs md:text-sm text-ivory placeholder:text-mist/50 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold font-manrope resize-y"
               />
-            </div>
-
-            {/* Target Language for Concept Extraction */}
-            <div className="flex items-center justify-between rounded-xl border border-gold/15 bg-veil/40 p-3">
-              <div>
-                <span className="font-fraunces text-sm text-ivory block">
-                  Concept Language Preference
-                </span>
-                <span className="text-[11px] text-mist font-manrope">
-                  Language for star definitions and mnemonics.
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setLanguage("en")}
-                  className={`px-3 py-1 rounded-full text-xs font-mono transition-colors ${
-                    language === "en"
-                      ? "bg-gold text-night font-semibold shadow-astral"
-                      : "text-mist hover:text-ivory"
-                  }`}
-                >
-                  English
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLanguage("mr")}
-                  className={`px-3 py-1 rounded-full text-xs font-tiro transition-colors ${
-                    language === "mr"
-                      ? "bg-gold text-night font-semibold shadow-astral"
-                      : "text-mist hover:text-ivory"
-                  }`}
-                >
-                  मराठी
-                </button>
-              </div>
             </div>
 
             {/* Action Buttons */}

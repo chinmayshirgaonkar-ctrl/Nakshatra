@@ -70,10 +70,6 @@ export function ChartingStarsModal({
             <span className="font-mono text-xs uppercase tracking-widest text-gold-soft">
               {isExtracting ? "Astrolabe Synthesizing" : "Constellation Ignited"}
             </span>
-            <span className="h-1 w-1 rounded-full bg-gold" />
-            <span className="font-tiro text-xs text-mist">
-              {isExtracting ? "नवे तारे रेखाटत आहे..." : "तारे आकाशात प्रज्वलित झाले"}
-            </span>
           </div>
 
           <h2 className="font-fraunces text-2xl md:text-3xl text-ivory font-normal">
@@ -100,11 +96,6 @@ export function ChartingStarsModal({
                     <span className="font-fraunces text-sm font-medium text-ivory">
                       {c.name}
                     </span>
-                    {c.marathiName && (
-                      <span className="font-tiro text-xs text-gold-soft">
-                        {c.marathiName}
-                      </span>
-                    )}
                   </div>
                   <p className="font-manrope text-xs text-mist line-clamp-2 mt-0.5">
                     {c.definition}

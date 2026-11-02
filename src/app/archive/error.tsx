@@ -14,7 +14,6 @@ export default function ErrorBoundary({
       error={error}
       reset={reset}
       chamberName="Ask the Archive"
-      marathiName="ग्रंथालय संवाद"
     />
   );
 }

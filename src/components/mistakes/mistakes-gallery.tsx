@@ -76,8 +76,6 @@ export function MistakesGallery({ initialMistakes }: MistakesGalleryProps) {
             <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
               Repository of Flaws & Growth
             </span>
-            <span className="h-1 w-1 rounded-full bg-gold/50" />
-            <span className="font-tiro text-xs text-mist">चुकांचे संग्रहालय</span>
           </div>
           <h1 className="font-fraunces text-3xl font-light text-ivory">Museum of Mistakes</h1>
         </div>
@@ -264,7 +262,7 @@ export function MistakesGallery({ initialMistakes }: MistakesGalleryProps) {
                     <div className="rounded-2xl border border-gold/20 bg-veil/70 p-3.5 mb-4">
                       <div className="flex items-center gap-1.5 text-gold text-[10px] font-mono uppercase tracking-wider mb-1">
                         <Lightbulb className="w-3.5 h-3.5 text-gold" />
-                        <span>Celestial Memory Hook (स्मरणसूत्र)</span>
+                        <span>Celestial Memory Hook</span>
                       </div>
                       <p className="font-fraunces text-xs sm:text-sm text-ivory italic">
                         &ldquo;{exhibit.memoryHook}&rdquo;

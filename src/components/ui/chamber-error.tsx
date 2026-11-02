@@ -9,14 +9,12 @@ interface ChamberErrorProps {
   error: Error & { digest?: string };
   reset: () => void;
   chamberName?: string;
-  marathiName?: string;
 }
 
 export function ChamberError({
   error,
   reset,
   chamberName = "Chamber",
-  marathiName = "दालन",
 }: ChamberErrorProps) {
   React.useEffect(() => {
     console.error(`Error encountered in ${chamberName}:`, error);
@@ -32,8 +30,6 @@ export function ChamberError({
         <span className="font-mono text-[10px] uppercase tracking-widest text-rose-400">
           Astrolabe Disturbance
         </span>
-        <span className="h-1 w-1 rounded-full bg-rose-400/50" />
-        <span className="font-tiro text-xs text-mist">{marathiName} त्रुटी</span>
       </div>
 
       <h2 className="font-fraunces text-2xl md:text-3xl text-ivory mb-2 font-normal">

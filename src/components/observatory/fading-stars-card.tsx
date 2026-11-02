@@ -22,8 +22,6 @@ export function FadingStarsCard({ fadingStars }: FadingStarsCardProps) {
             <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
               Active Recall Due
             </span>
-            <span className="h-1 w-1 rounded-full bg-gold/50" />
-            <span className="font-tiro text-xs text-mist">पुनरावलोकन आवश्यक</span>
           </div>
           <span
             className={`text-xs font-mono px-2.5 py-0.5 rounded-full ${
@@ -58,11 +56,6 @@ export function FadingStarsCard({ fadingStars }: FadingStarsCardProps) {
                     <span className="font-fraunces text-sm text-ivory block truncate">
                       {star.name}
                     </span>
-                    {star.marathiName && (
-                      <span className="font-tiro text-[10px] text-mist block">
-                        {star.marathiName}
-                      </span>
-                    )}
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">

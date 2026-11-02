@@ -3,7 +3,6 @@ export interface MoonPhaseInfo {
   dayOfMonth: number;
   phaseFraction: number; // 0.0 to 1.0 (0=New Moon, 0.5=Full Moon)
   phaseName: string;
-  marathiPhaseName: string;
   hasActivity: boolean;
   reviewsCount: number;
   readingMinutes: number;
@@ -23,29 +22,29 @@ export function getMoonPhaseFraction(date: Date): number {
   return phase < 0 ? phase + 1 : phase;
 }
 
-export function getMoonPhaseName(fraction: number): { en: string; mr: string } {
+export function getMoonPhaseName(fraction: number): string {
   if (fraction < 0.04 || fraction >= 0.96) {
-    return { en: "New Moon", mr: "अमावास्या" };
+    return "New Moon";
   }
   if (fraction < 0.22) {
-    return { en: "Waxing Crescent", mr: "शुक्ल कोर" };
+    return "Waxing Crescent";
   }
   if (fraction < 0.28) {
-    return { en: "First Quarter", mr: "शुक्ल अष्टमी" };
+    return "First Quarter";
   }
   if (fraction < 0.46) {
-    return { en: "Waxing Gibbous", mr: "शुक्ल एकादशी" };
+    return "Waxing Gibbous";
   }
   if (fraction < 0.54) {
-    return { en: "Full Moon", mr: "पौर्णिमा" };
+    return "Full Moon";
   }
   if (fraction < 0.72) {
-    return { en: "Waning Gibbous", mr: "कृष्ण तृतीया" };
+    return "Waning Gibbous";
   }
   if (fraction < 0.78) {
-    return { en: "Last Quarter", mr: "कृष्ण अष्टमी" };
+    return "Last Quarter";
   }
-  return { en: "Waning Crescent", mr: "कृष्ण कोर" };
+  return "Waning Crescent";
 }
 
 /**
@@ -57,7 +56,7 @@ export function generatePast30DaysMoonPhases(
 ): {
   phases: MoonPhaseInfo[];
   streakDays: number;
-  currentPhase: { en: string; mr: string; fraction: number };
+  currentPhase: { en: string; fraction: number };
 } {
   const phases: MoonPhaseInfo[] = [];
   let streak = 0;
@@ -76,14 +75,13 @@ export function generatePast30DaysMoonPhases(
     const hasActivity = reviewsCount > 0 || readingMinutes > 0;
 
     const fraction = getMoonPhaseFraction(d);
-    const names = getMoonPhaseName(fraction);
+    const name = getMoonPhaseName(fraction);
 
     phases.push({
       date: dateKey,
       dayOfMonth: d.getDate(),
       phaseFraction: Number(fraction.toFixed(3)),
-      phaseName: names.en,
-      marathiPhaseName: names.mr,
+      phaseName: name,
       hasActivity,
       reviewsCount,
       readingMinutes,
@@ -105,7 +103,7 @@ export function generatePast30DaysMoonPhases(
 
   const todayFraction = getMoonPhaseFraction(endDate);
   const currentPhase = {
-    ...getMoonPhaseName(todayFraction),
+    en: getMoonPhaseName(todayFraction),
     fraction: Number(todayFraction.toFixed(3)),
   };
 

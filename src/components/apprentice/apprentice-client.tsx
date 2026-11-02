@@ -24,7 +24,6 @@ export function ApprenticeClient({
 
   const [mode, setMode] = useState<"setup" | "chat" | "report">("setup");
   const [selectedConcept, setSelectedConcept] = useState<Concept | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState<"en" | "mr">("en");
 
   // Gap Report result
   const [gapReport, setGapReport] = useState<ApprenticeGapReport | null>(null);
@@ -40,9 +39,8 @@ export function ApprenticeClient({
     }
   }, [requestedConceptId, initialConcepts, selectedConcept]);
 
-  const handleStartLesson = (concept: Concept, language: "en" | "mr") => {
+  const handleStartLesson = (concept: Concept) => {
     setSelectedConcept(concept);
-    setSelectedLanguage(language);
     setMode("chat");
   };
 
@@ -57,7 +55,6 @@ export function ApprenticeClient({
       body: JSON.stringify({
         conceptId: selectedConcept.id,
         conversationHistory: messages,
-        language: selectedLanguage,
       }),
     });
 
@@ -102,7 +99,6 @@ export function ApprenticeClient({
           concept={selectedConcept}
           topic={currentTopic}
           subject={currentSubject}
-          language={selectedLanguage}
           onEndLesson={handleEndLesson}
           onCancel={handleReset}
         />

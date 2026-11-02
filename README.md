@@ -1,4 +1,4 @@
-# Nakshatra (नक्षत्र) — The Celestial Learning OS
+# Nakshatra — The Celestial Learning OS
 
 > **A personal, single-user learning operating system that turns study material into a living night sky.**  
 > Concepts are stars; spaced repetition retention (FSRS 5.0) dictates brightness. Topics cluster into constellations; AI discovers cross-disciplinary connections.
@@ -17,10 +17,9 @@ Nakshatra marries an 19th-century mountaintop astronomical observatory with mode
   - `--aurora` (`#6FD3C6`): Stable memory retention (FSRS $R \ge 0.7$).
   - `--ember` (`#E07A5F` / `#EF4444`): Dimming or fading stars requiring review.
 - **Parchment Light Theme:** Warm archival paper (`#F6F1E7`) with dark antique ink (`#1C1B22`) and burnished gold.
-- **Bilingual Typography:**
+- **Typography:**
   - Headings: *Fraunces* (optical size, warm serif)
   - Interface: *Manrope*
-  - Marathi / Devanagari: *Tiro Devanagari Marathi* & *Noto Sans Devanagari*
   - Coordinates & Telemetry: *JetBrains Mono*
 - **Responsive Navigation:**
   - Desktop: Collapsible Midnight Astrolabe sidebar with quick-access commands.
@@ -28,16 +27,17 @@ Nakshatra marries an 19th-century mountaintop astronomical observatory with mode
 
 ---
 
-## 🌌 The Eight Celestial Chambers
+## 🌌 The Celestial Chambers
 
-1. **Observatory (वेधशाळा):** Today's contemplation ritual, 30-day astronomical moon phase streak, fading stars quick-review, weekly study time chart, and AI cross-subject thread.
-2. **The Library (ग्रंथालय):** Multi-modal knowledge ingestion (raw text, PDF with Gemini Vision OCR fallback, and distraction-free URL article scraping).
-3. **The Reading Room (वाचनकक्ष):** Magazine-quality study page with streaming 1-min / 5-min / deep summaries, expandable key points, glossary, "Explain like I'm 10", interactive SVG radial mind map, and floating text selection actions ("Explain this", "Make a concept star", "Quiz me on this").
-4. **The Sky (आकाश):** Full-screen, zoomable, pannable 60 FPS HTML5 Canvas night sky. Star size equals importance; brightness/glow equals FSRS retrievability ($R$). Fading stars gently flicker; hovering displays retention telemetry; clicking opens the celestial action drawer.
-5. **The Trials (परीक्षा):** Socratic examination engine (MCQ, True/False with reasoning, fill-in-the-blank, and Gemini rubric-graded short explanations). Answers dynamically update concept FSRS cards.
-6. **Museum of Mistakes (चुकांचे संग्रहालय):** Gallery of framed missteps and memory hooks. "Re-trial my mistakes" builds custom trials from unresolved mistakes until solved twice.
-7. **Blank Page (कोरा कागद):** Unassisted active recall on pristine digital parchment with optional timer. Gemini cross-examines recall against source materials with green (remembered), amber (partial), and ember (misconception) text annotations.
-8. **The Apprentice (शिष्य):** Feynman technique dialog chamber where Gemini roleplays an eager, sharp student who **never lectures** the user, spots contradictions, and produces a structured Gap Report with follow-up study inquiries.
+1. **Observatory:** Today's contemplation ritual, 30-day astronomical moon phase streak, fading stars quick-review, weekly study time chart, and AI cross-subject thread.
+2. **The Library:** Multi-modal knowledge ingestion (raw text, PDF with Gemini Vision OCR fallback, and distraction-free URL article scraping).
+3. **The Reading Room:** Magazine-quality study page with streaming 1-min / 5-min / deep summaries, expandable key points, glossary, "Explain like I'm 10", interactive SVG radial mind map, and floating text selection actions ("Explain this", "Make a concept star", "Quiz me on this").
+4. **The Sky:** Full-screen, zoomable, pannable 60 FPS HTML5 Canvas night sky. Star size equals importance; brightness/glow equals FSRS retrievability ($R$). Fading stars gently flicker; hovering displays retention telemetry; clicking opens the celestial action drawer.
+5. **The Trials:** Socratic examination engine (MCQ, True/False with reasoning, fill-in-the-blank, and Gemini rubric-graded short explanations). Answers dynamically update concept FSRS cards.
+6. **Museum of Mistakes:** Gallery of framed missteps and memory hooks. "Re-trial my mistakes" builds custom trials from unresolved mistakes until solved twice.
+7. **Blank Page:** Unassisted active recall on digital parchment with optional timer. Gemini cross-examines recall against source materials with green (remembered), amber (partial), and ember (misconception) text annotations.
+8. **The Apprentice:** Feynman technique dialog chamber where Gemini roleplays an eager, sharp student who **never lectures** the user, spots contradictions, and produces a structured Gap Report with follow-up study inquiries.
+9. **Ask the Archive:** Strictly grounded vector retrieval across personal notes with verifiable inline citations.
 
 ---
 

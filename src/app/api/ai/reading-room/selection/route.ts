@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { action, selection, materialId, context, language = "en" } = body;
+    const { action, selection, materialId, context } = body;
 
     if (!action || !selection || !materialId) {
       return NextResponse.json(
@@ -40,13 +40,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Material not found." }, { status: 404 });
     }
 
-    const lang = language === "mr" ? "mr" : "en";
-
     if (action === "explain") {
       const explanation = await explainSelection({
         selection,
         surroundingContext: context,
-        language: lang,
       });
       return NextResponse.json({ success: true, result: explanation });
     }
@@ -56,7 +53,6 @@ export async function POST(request: NextRequest) {
         uid: user.uid,
         material: data.material,
         selection,
-        language: lang,
       });
       return NextResponse.json({ success: true, concept: newConcept });
     }
@@ -65,7 +61,6 @@ export async function POST(request: NextRequest) {
       const quiz = await quizSelection({
         selection,
         surroundingContext: context,
-        language: lang,
       });
       return NextResponse.json({ success: true, quiz });
     }

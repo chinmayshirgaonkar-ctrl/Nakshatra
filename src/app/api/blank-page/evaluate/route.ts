@@ -28,7 +28,6 @@ export async function POST(req: NextRequest) {
       topicId,
       recallText,
       durationSeconds = 0,
-      language = "en",
     } = body;
 
     if (!topicId || !recallText || !recallText.trim()) {
@@ -74,7 +73,6 @@ export async function POST(req: NextRequest) {
       topic,
       concepts,
       sourceContext,
-      language,
     });
 
     // Save session and batch update FSRS cards

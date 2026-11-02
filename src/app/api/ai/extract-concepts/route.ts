@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { materialId, topicId, subjectId, text, language, regenerate } = body;
+    const { materialId, topicId, subjectId, text, regenerate } = body;
 
     if (!materialId || !topicId || !subjectId || !text) {
       return NextResponse.json(
@@ -45,7 +45,6 @@ export async function POST(request: NextRequest) {
       subjectId,
       text,
       existingConcepts,
-      language: language || "en",
       regenerate: !!regenerate,
     });
 

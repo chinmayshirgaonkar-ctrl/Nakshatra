@@ -22,7 +22,6 @@ interface ApprenticeChatProps {
   concept: Concept;
   subject?: Subject;
   topic?: Topic;
-  language: "en" | "mr";
   onEndLesson: (messages: { role: "user" | "apprentice"; text: string }[]) => Promise<void>;
   onCancel: () => void;
 }
@@ -31,14 +30,10 @@ export function ApprenticeChat({
   concept,
   subject,
   topic,
-  language,
   onEndLesson,
   onCancel,
 }: ApprenticeChatProps) {
-  const initialGreeting =
-    language === "mr"
-      ? `नमस्कार गुरुवर्य! मला '${concept.name}' बद्दल अधिक जाणून घ्यायचे आहे. मी या विषयावर एकदम नवीन आहे. आपण मला हे अगदी साध्या आणि सोप्या शब्दांत समजावून सांगू शकाल का?`
-      : `Greetings mentor! I am eager to learn about '${concept.name}'. I have never studied this before. Could you explain what it means in simple everyday terms or with an analogy?`;
+  const initialGreeting = `Greetings mentor! I am eager to learn about '${concept.name}'. I have never studied this before. Could you explain what it means in simple everyday terms or with an analogy?`;
 
   const [messages, setMessages] = useState<{ role: "user" | "apprentice"; text: string }[]>([
     { role: "apprentice", text: initialGreeting },
@@ -82,7 +77,6 @@ export function ApprenticeChat({
         body: JSON.stringify({
           conceptId: concept.id,
           conversationHistory: newHistory,
-          language,
         }),
       });
 
@@ -98,10 +92,7 @@ export function ApprenticeChat({
         ...prev,
         {
           role: "apprentice",
-          text:
-            language === "mr"
-              ? "क्षमस्व, माझे लक्ष विचलित झाले. आपण काय म्हणालात ते पुन्हा सांगाल का?"
-              : "Forgive me, mentor, my thoughts drifted for a moment. Could you repeat that last point?",
+          text: "Forgive me, mentor, my thoughts drifted for a moment. Could you repeat that last point?",
         },
       ]);
     } finally {
@@ -190,9 +181,7 @@ export function ApprenticeChat({
             ) : (
               <>
                 <FileText className="w-3.5 h-3.5" />
-                <span>
-                  {language === "mr" ? "धडा समाप्त करा (Gap Report)" : "End Lesson & Evaluate"}
-                </span>
+                <span>End Lesson & Evaluate</span>
               </>
             )}
           </Button>
@@ -242,13 +231,7 @@ export function ApprenticeChat({
                       isApprentice ? "text-gold-soft" : "text-amber-300"
                     }`}
                   >
-                    {isApprentice
-                      ? language === "mr"
-                        ? "शिष्य (Apprentice)"
-                        : "The Apprentice"
-                      : language === "mr"
-                      ? "आपण (Mentor)"
-                      : "You (Mentor)"}
+                    {isApprentice ? "The Apprentice" : "You (Mentor)"}
                   </span>
                 </div>
                 <p className="whitespace-pre-wrap">{m.text}</p>
@@ -271,11 +254,7 @@ export function ApprenticeChat({
             </div>
             <div className="rounded-2xl p-4 text-xs font-mono text-mist bg-night/80 border border-gold/20 flex items-center gap-2">
               <Loader2 className="w-3.5 h-3.5 animate-spin text-gold" />
-              <span>
-                {language === "mr"
-                  ? "शिष्य विचार करत आहे..."
-                  : "The Apprentice is pondering your explanation..."}
-              </span>
+              <span>The Apprentice is pondering your explanation...</span>
             </div>
           </div>
         )}
@@ -296,11 +275,7 @@ export function ApprenticeChat({
               handleSendMessage();
             }
           }}
-          placeholder={
-            language === "mr"
-              ? "आपले स्पष्टीकरण इथे लिहा... (Enter दाबा पाठवण्यासाठी)"
-              : "Explain in simple terms as if to a curious student... (Press Enter to send, Shift+Enter for new line)"
-          }
+          placeholder="Explain in simple terms as if to a curious student... (Press Enter to send, Shift+Enter for new line)"
           disabled={isReplying || isEnding}
           className="w-full bg-transparent p-2 text-sm text-ivory placeholder:text-mist/50 focus:outline-none resize-none font-manrope"
         />

@@ -74,7 +74,7 @@ export const ConceptLinkSchema = z.object({
 // Zod Schema for Gemini Concept Extraction Output
 export const ExtractedConceptItemSchema = z.object({
   name: z.string().describe("Concept title (concise, 1-4 words)"),
-  marathiName: z.string().optional().describe("Marathi translation of concept name if applicable"),
+  marathiName: z.string().optional(),
   definition: z.string().describe("Crystal clear explanation/definition (20-50 words)"),
   importance: z.number().min(1).max(5).describe("1=minor detail, 5=core foundational pillar"),
 });

@@ -9,31 +9,26 @@ import { cn } from "@/lib/utils";
 const MOBILE_ITEMS = [
   {
     title: "Observatory",
-    marathi: "वेधशाळा",
     href: "/observatory",
     icon: Compass,
   },
   {
     title: "Library",
-    marathi: "ग्रंथालय",
     href: "/library",
     icon: BookOpen,
   },
   {
     title: "The Sky",
-    marathi: "आकाश",
     href: "/sky",
     icon: Sparkles,
   },
   {
     title: "Trials",
-    marathi: "परीक्षा",
     href: "/trials",
     icon: Swords,
   },
   {
     title: "Recall",
-    marathi: "स्मरण",
     href: "/blank-page",
     icon: Feather,
   },
@@ -69,9 +64,6 @@ export function MobileNav() {
             />
             <span className="text-[10px] font-manrope tracking-tight leading-none">
               {item.title}
-            </span>
-            <span className="text-[8px] font-tiro opacity-70 leading-none mt-0.5">
-              {item.marathi}
             </span>
 
             {isActive && (

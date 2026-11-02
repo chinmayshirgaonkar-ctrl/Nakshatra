@@ -31,12 +31,12 @@ export function TrialResults({ result, trialTitle, onRetry }: TrialResultsProps)
 
   const masteryTier =
     result.percentage >= 90
-      ? "Master Cartographer (सर्वोच्च पारंगत)"
+      ? "Master Cartographer"
       : result.percentage >= 70
-      ? "Celestial Navigator (दक्ष प्रवासी)"
+      ? "Celestial Navigator"
       : result.percentage >= 50
-      ? "Adept Apprentice (प्रगत अभ्यासक)"
-      : "Initiate of the Sky (नवप्रवेशी)";
+      ? "Adept Apprentice"
+      : "Initiate of the Sky";
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-200">

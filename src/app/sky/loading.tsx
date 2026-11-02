@@ -4,7 +4,6 @@ export default function Loading() {
   return (
     <ChamberSkeleton
       chamberName="The Sky"
-      marathiName="आकाश दालन"
       subtitle="Projecting Constellations & FSRS Brightness Fields..."
     />
   );

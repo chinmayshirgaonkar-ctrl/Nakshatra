@@ -21,7 +21,6 @@ export function Topbar() {
         (item.href === "/observatory" && pathname === "/")
     ) || {
       title: "Observatory",
-      marathi: "वेधशाळा",
     };
 
   return (
@@ -41,10 +40,6 @@ export function Topbar() {
             <div className="flex items-center gap-2">
               <span className="font-fraunces text-lg md:text-xl font-normal text-ivory">
                 {currentSection.title}
-              </span>
-              <span className="gold-hairline w-4 hidden sm:inline-block" />
-              <span className="font-tiro text-xs text-gold-soft hidden sm:inline-block">
-                {currentSection.marathi}
               </span>
             </div>
             <span className="text-[10px] font-mono tracking-widest text-mist uppercase">
@@ -72,7 +67,6 @@ export function Topbar() {
           <div className="flex items-center justify-between pb-6 border-b border-gold/15">
             <div className="flex items-center gap-2">
               <span className="font-fraunces text-2xl text-ivory">Nakshatra</span>
-              <span className="font-tiro text-sm text-gold">नक्षत्र</span>
             </div>
             <button
               onClick={() => setMobileOpen(false)}
@@ -102,7 +96,6 @@ export function Topbar() {
                     <Icon className="h-5 w-5 text-gold" />
                     <span>{item.title}</span>
                   </div>
-                  <span className="font-tiro text-sm text-gold-soft">{item.marathi}</span>
                 </Link>
               );
             })}

@@ -16,12 +16,10 @@ export interface ArchiveAnswerResult {
 export async function askArchiveQuestion({
   uid,
   question,
-  language = "en",
   conversationHistory = [],
 }: {
   uid: string;
   question: string;
-  language?: "en" | "mr";
   conversationHistory?: Array<{ role: "user" | "archive"; content: string }>;
 }): Promise<ArchiveAnswerResult> {
   // 1. Embed the user's question with Gemini
@@ -33,9 +31,7 @@ export async function askArchiveQuestion({
   if (nearestChunks.length === 0) {
     return {
       answer:
-        language === "mr"
-          ? "आपल्या ग्रंथालयात या प्रश्नाशी संबंधित कोणतेही अभ्यास साहित्य आढळले नाही. कृपया प्रथम ग्रंथालयात साहित्य जोडा."
-          : "No relevant study materials found in your personal archive. Please deposit materials into The Library first.",
+        "No relevant study materials found in your personal archive. Please deposit materials into The Library first.",
       citations: [],
       noArchiveMatch: true,
       retrievedChunksCount: 0,
@@ -53,7 +49,7 @@ export async function askArchiveQuestion({
   const ai = getGenAI();
   const model = getPrimaryModel();
 
-  const systemInstruction = `You are the Chronicler of the Archive in "Nakshatra" (नक्षत्र), a celestial knowledge sanctuary.
+  const systemInstruction = `You are the Chronicler of the Archive in "Nakshatra", a celestial knowledge sanctuary.
 Your sacred duty is to answer questions based STRICTLY AND SOLELY on the learner's personal study materials provided in the excerpts below.
 
 IRONCLAD GROUNDING RULES:
@@ -64,7 +60,7 @@ IRONCLAD GROUNDING RULES:
 3. INLINE CITATIONS: For every factual claim, definition, or explanation, you MUST provide an exact citation mark formatted as:
    [Citation: {Material Title}, Chunk {Chunk #}](reading-room://{MaterialID}?chunk={Chunk #})
    Example: "The dispatch algorithm groups riders by destination cluster [Citation: Cab Pooling PRD, Chunk 1](reading-room://abc1234?chunk=1)."
-4. LANGUAGE: Answer in ${language === "mr" ? "Marathi (मराठी)" : "English"}.
+4. LANGUAGE: Answer in English only.
 5. TONE: Scholarly, lucid, precise, and respectful.
 
 ARCHIVE EXCERPTS:
@@ -90,8 +86,6 @@ ${contextBlock}`;
     "not covered in your archived",
     "not mentioned in your archived",
     "not found in your archived",
-    "अभ्यास साहित्यात आढळले नाही",
-    "अभ्यास साहित्यात उल्लेख नाही",
   ];
   const noArchiveMatch = notCoveredKeywords.some((k) =>
     cleanAnswer.toLowerCase().includes(k.toLowerCase())

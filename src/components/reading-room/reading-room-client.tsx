@@ -54,7 +54,6 @@ export function ReadingRoomClient({
 }: ReadingRoomClientProps) {
   const [activeTab, setActiveTab] = React.useState<TabType>("summary");
   const [summaryLength, setSummaryLength] = React.useState<SummaryLength>("1min");
-  const [language, setLanguage] = React.useState<"en" | "mr">("en");
   const [fontSize, setFontSize] = React.useState<FontSize>("md");
   const [focusMode, setFocusMode] = React.useState(false);
   const [concepts, setConcepts] = React.useState<Concept[]>(initialConcepts);
@@ -143,8 +142,8 @@ export function ReadingRoomClient({
 
   // Load / Stream Summary
   const loadSummary = React.useCallback(
-    async (length: SummaryLength, lang: "en" | "mr", forceRegenerate = false) => {
-      const cacheKey = `${length}_${lang}`;
+    async (length: SummaryLength, forceRegenerate = false) => {
+      const cacheKey = length;
       if (!forceRegenerate && summaries[cacheKey]) {
         return;
       }
@@ -159,7 +158,6 @@ export function ReadingRoomClient({
           body: JSON.stringify({
             materialId: material.id,
             length,
-            language: lang,
             regenerate: forceRegenerate,
           }),
         });
@@ -205,10 +203,10 @@ export function ReadingRoomClient({
 
   // Load Structured Tab Content
   const loadTabContent = React.useCallback(
-    async (tab: TabType, lang: "en" | "mr", forceRegenerate = false) => {
+    async (tab: TabType, forceRegenerate = false) => {
       if (tab === "summary" || tab === "original") return;
 
-      const loadingKey = `${tab}_${lang}`;
+      const loadingKey = tab;
       setTabLoading((prev) => ({ ...prev, [loadingKey]: true }));
 
       try {
@@ -218,7 +216,6 @@ export function ReadingRoomClient({
           body: JSON.stringify({
             materialId: material.id,
             tab,
-            language: lang,
             regenerate: forceRegenerate,
           }),
         });
@@ -239,27 +236,27 @@ export function ReadingRoomClient({
     [material.id]
   );
 
-  // Trigger loading when tab or language changes
+  // Trigger loading when tab changes
   React.useEffect(() => {
     if (activeTab === "summary") {
-      loadSummary(summaryLength, language);
+      loadSummary(summaryLength);
     } else if (activeTab === "key_points" && !keyPointsData) {
-      loadTabContent("key_points", language);
+      loadTabContent("key_points");
     } else if (activeTab === "glossary" && !glossaryData) {
-      loadTabContent("glossary", language);
+      loadTabContent("glossary");
     } else if (activeTab === "eli10" && !eli10Data) {
-      loadTabContent("eli10", language);
+      loadTabContent("eli10");
     } else if (activeTab === "mindmap" && !mindMapData) {
-      loadTabContent("mindmap", language);
+      loadTabContent("mindmap");
     }
-  }, [activeTab, summaryLength, language, loadSummary, loadTabContent, keyPointsData, glossaryData, eli10Data, mindMapData]);
+  }, [activeTab, summaryLength, loadSummary, loadTabContent, keyPointsData, glossaryData, eli10Data, mindMapData]);
 
   // Handle Regenerate
   const handleRegenerate = () => {
     if (activeTab === "summary") {
-      loadSummary(summaryLength, language, true);
+      loadSummary(summaryLength, true);
     } else {
-      loadTabContent(activeTab, language, true);
+      loadTabContent(activeTab, true);
     }
   };
 
@@ -271,11 +268,11 @@ export function ReadingRoomClient({
       ? "text-[21px] leading-[1.8]"
       : "text-[18px] leading-[1.75]";
 
-  const currentSummaryText = summaries[`${summaryLength}_${language}`] || "";
+  const currentSummaryText = summaries[summaryLength] || "";
   const isLoadingCurrentTab =
     activeTab === "summary"
       ? isStreamingSummary
-      : !!tabLoading[`${activeTab}_${language}`];
+      : !!tabLoading[activeTab];
 
   // Original Text with Concept Highlight and Chunk Anchors
   const renderOriginalText = () => {
@@ -359,7 +356,6 @@ export function ReadingRoomClient({
       {/* Floating Selection Tool (Explain, Make Star, Quiz) */}
       <SelectionMenu
         materialId={material.id}
-        language={language}
         containerRef={contentRef}
         onStarCreated={async () => {
           // Re-fetch concepts
@@ -388,11 +384,6 @@ export function ReadingRoomClient({
           </div>
           <h4 className="font-fraunces text-base text-ivory font-normal mb-1">
             {hoveredConcept.concept.name}
-            {hoveredConcept.concept.marathiName && (
-              <span className="font-tiro text-xs text-mist ml-2">
-                ({hoveredConcept.concept.marathiName})
-              </span>
-            )}
           </h4>
           <p className="font-manrope text-xs text-mist leading-relaxed">
             {hoveredConcept.concept.definition}
@@ -438,34 +429,8 @@ export function ReadingRoomClient({
             </div>
           </div>
 
-          {/* Right: Controls (Language, Font, Focus, Regenerate) */}
+          {/* Right: Controls (Font, Focus, Regenerate) */}
           <div className="flex items-center gap-2">
-            {/* Language Toggle */}
-            <div className="flex items-center bg-deep/90 border border-gold/20 rounded-xl p-0.5">
-              <button
-                onClick={() => setLanguage("en")}
-                className={cn(
-                  "px-2.5 py-1 text-xs font-mono rounded-lg transition-all",
-                  language === "en"
-                    ? "bg-gold text-night font-bold shadow-sm"
-                    : "text-mist hover:text-ivory"
-                )}
-              >
-                EN
-              </button>
-              <button
-                onClick={() => setLanguage("mr")}
-                className={cn(
-                  "px-2.5 py-1 text-xs font-tiro rounded-lg transition-all",
-                  language === "mr"
-                    ? "bg-gold text-night font-bold shadow-sm"
-                    : "text-mist hover:text-ivory"
-                )}
-              >
-                मराठी
-              </button>
-            </div>
-
             {/* Font Size Selector */}
             <div className="hidden sm:flex items-center bg-deep/90 border border-gold/20 rounded-xl p-0.5">
               <button
@@ -623,7 +588,7 @@ export function ReadingRoomClient({
                 <button
                   onClick={() => {
                     setSummaryLength("1min");
-                    loadSummary("1min", language);
+                    loadSummary("1min");
                   }}
                   className={cn(
                     "px-3 py-1.5 rounded-lg text-xs font-mono transition-all",
@@ -637,7 +602,7 @@ export function ReadingRoomClient({
                 <button
                   onClick={() => {
                     setSummaryLength("5min");
-                    loadSummary("5min", language);
+                    loadSummary("5min");
                   }}
                   className={cn(
                     "px-3 py-1.5 rounded-lg text-xs font-mono transition-all",
@@ -651,7 +616,7 @@ export function ReadingRoomClient({
                 <button
                   onClick={() => {
                     setSummaryLength("deep");
-                    loadSummary("deep", language);
+                    loadSummary("deep");
                   }}
                   className={cn(
                     "px-3 py-1.5 rounded-lg text-xs font-mono transition-all",
@@ -676,8 +641,7 @@ export function ReadingRoomClient({
             <article
               className={cn(
                 "prose prose-invert max-w-none font-serif text-ivory/90",
-                fontClasses,
-                language === "mr" && "font-tiro"
+                fontClasses
               )}
             >
               {currentSummaryText ? (
@@ -708,7 +672,7 @@ export function ReadingRoomClient({
         {/* Tab 2: Key Points */}
         {activeTab === "key_points" && (
           <div ref={contentRef} className="space-y-4 animate-in fade-in">
-            {tabLoading[`key_points_${language}`] ? (
+            {tabLoading["key_points"] ? (
               <div className="py-16 text-center text-mist space-y-3">
                 <Loader2 className="w-8 h-8 animate-spin mx-auto text-gold" />
                 <p className="font-mono text-xs text-gold-soft">
@@ -781,7 +745,7 @@ export function ReadingRoomClient({
         {/* Tab 3: Glossary */}
         {activeTab === "glossary" && (
           <div ref={contentRef} className="space-y-4 animate-in fade-in">
-            {tabLoading[`glossary_${language}`] ? (
+            {tabLoading["glossary"] ? (
               <div className="py-16 text-center text-mist space-y-3">
                 <Loader2 className="w-8 h-8 animate-spin mx-auto text-gold" />
                 <p className="font-mono text-xs text-gold-soft">
@@ -800,11 +764,6 @@ export function ReadingRoomClient({
                         <span className="font-mono text-[10px] uppercase tracking-wider text-gold-soft">
                           Term {i + 1}
                         </span>
-                        {item.marathiTerm && (
-                          <span className="font-tiro text-xs text-mist">
-                            {item.marathiTerm}
-                          </span>
-                        )}
                       </div>
                       <h4 className="font-fraunces text-base text-ivory font-normal mb-2">
                         {item.term}
@@ -833,7 +792,7 @@ export function ReadingRoomClient({
         {/* Tab 4: Explain Like I'm 10 (ELI10) */}
         {activeTab === "eli10" && (
           <div ref={contentRef} className="space-y-6 animate-in fade-in">
-            {tabLoading[`eli10_${language}`] ? (
+            {tabLoading["eli10"] ? (
               <div className="py-16 text-center text-mist space-y-3">
                 <Loader2 className="w-8 h-8 animate-spin mx-auto text-gold" />
                 <p className="font-mono text-xs text-gold-soft">
@@ -902,7 +861,7 @@ export function ReadingRoomClient({
         {/* Tab 5: Mind Map */}
         {activeTab === "mindmap" && (
           <div className="animate-in fade-in">
-            {tabLoading[`mindmap_${language}`] ? (
+            {tabLoading["mindmap"] ? (
               <div className="py-16 text-center text-mist space-y-3">
                 <Loader2 className="w-8 h-8 animate-spin mx-auto text-gold" />
                 <p className="font-mono text-xs text-gold-soft">

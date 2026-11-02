@@ -63,8 +63,8 @@ interface SubjectSpinesProps {
   materials: Material[];
   selectedSubjectId: string | null;
   onSelectSubject: (id: string | null) => void;
-  onCreateSubject: (data: { name: string; marathiName?: string; color: string; icon: string }) => Promise<any>;
-  onUpdateSubject: (id: string, data: { name?: string; marathiName?: string; color?: string; icon?: string }) => Promise<void>;
+  onCreateSubject: (data: { name: string; color: string; icon: string }) => Promise<any>;
+  onUpdateSubject: (id: string, data: { name?: string; color?: string; icon?: string }) => Promise<void>;
   onDeleteSubject: (id: string) => Promise<void>;
   onReorderSubjects: (ids: string[]) => Promise<void>;
 }
@@ -84,14 +84,12 @@ export function SubjectSpines({
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
 
   const [name, setName] = useState("");
-  const [marathiName, setMarathiName] = useState("");
   const [color, setColor] = useState(PALETTE[0]);
   const [icon, setIcon] = useState("BookOpen");
   const [submitting, setSubmitting] = useState(false);
 
   const openCreate = () => {
     setName("");
-    setMarathiName("");
     setColor(PALETTE[Math.floor(Math.random() * PALETTE.length)]);
     setIcon("BookOpen");
     setEditingSubject(null);
@@ -101,7 +99,6 @@ export function SubjectSpines({
   const openEdit = (s: Subject, e: React.MouseEvent) => {
     e.stopPropagation();
     setName(s.name);
-    setMarathiName(s.marathiName || "");
     setColor(s.color);
     setIcon(s.icon || "BookOpen");
     setEditingSubject(s);
@@ -117,14 +114,12 @@ export function SubjectSpines({
       if (editingSubject) {
         await onUpdateSubject(editingSubject.id, {
           name: name.trim(),
-          marathiName: marathiName.trim() || undefined,
           color,
           icon,
         });
       } else {
         await onCreateSubject({
           name: name.trim(),
-          marathiName: marathiName.trim() || undefined,
           color,
           icon,
         });
@@ -155,7 +150,6 @@ export function SubjectSpines({
           <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
             Subject Partitions
           </span>
-          <span className="font-tiro text-xs text-mist">विषय विभाग</span>
         </div>
 
         <Button
@@ -187,7 +181,6 @@ export function SubjectSpines({
           </div>
           <div>
             <span className="font-fraunces text-sm font-medium block">All Vaults</span>
-            <span className="text-[10px] text-mist font-tiro">सर्व संग्रह</span>
           </div>
         </button>
 
@@ -266,11 +259,6 @@ export function SubjectSpines({
                 <span className="font-fraunces text-base font-normal text-ivory block truncate group-hover:text-gold transition-colors">
                   {s.name}
                 </span>
-                {s.marathiName && (
-                  <span className="text-[11px] font-tiro text-gold-soft/80 block truncate">
-                    {s.marathiName}
-                  </span>
-                )}
               </div>
 
               <div className="flex items-center justify-between pt-3 mt-2 border-t border-gold/10 text-[10px] font-mono text-mist">
@@ -290,14 +278,14 @@ export function SubjectSpines({
               {editingSubject ? "Refine Subject Spine" : "Forge Subject Partition"}
             </DialogTitle>
             <DialogDescription>
-              Assign a name, Marathi title, celestial color ribbon, and insignia.
+              Assign a name, celestial color ribbon, and insignia.
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSave} className="space-y-4 py-2">
             <div>
               <label className="text-xs font-mono uppercase tracking-wider text-mist block mb-1.5">
-                Subject Title (English)
+                Subject Title
               </label>
               <Input
                 placeholder="e.g. Cognitive Philosophy"
@@ -309,19 +297,8 @@ export function SubjectSpines({
             </div>
 
             <div>
-              <label className="text-xs font-mono uppercase tracking-wider text-mist block mb-1.5">
-                Marathi Subtitle (मराठी शीर्षक)
-              </label>
-              <Input
-                placeholder="उदा. ज्ञान व चेतना"
-                value={marathiName}
-                onChange={(e) => setMarathiName(e.target.value)}
-              />
-            </div>
-
-            <div>
               <label className="text-xs font-mono uppercase tracking-wider text-mist block mb-2">
-                Color Ribbon (रंग)
+                Color Ribbon
               </label>
               <div className="flex items-center gap-2.5">
                 {PALETTE.map((hex) => (

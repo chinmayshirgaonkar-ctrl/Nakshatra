@@ -11,7 +11,7 @@ import {
 } from "@/lib/types/models";
 
 /**
- * Evaluates unassisted active-recall text written on the Blank Page (कोरा कागद).
+ * Evaluates unassisted active-recall text written on the Blank Page.
  */
 export async function evaluateBlankPageRecall({
   recallText,
@@ -24,7 +24,7 @@ export async function evaluateBlankPageRecall({
   topic: Topic;
   concepts: Concept[];
   sourceContext?: string;
-  language?: "en" | "mr";
+  language?: string;
 }): Promise<BlankPageEvaluation> {
   const ai = getGenAI();
   const model = getPrimaryModel();
@@ -32,12 +32,11 @@ export async function evaluateBlankPageRecall({
   const conceptsRoster = concepts.map((c) => ({
     id: c.id,
     name: c.name,
-    marathiName: c.marathiName,
     definition: c.definition,
     importance: c.importance,
   }));
 
-  const systemInstruction = `You are the High Grand Assessor of "Nakshatra" (नक्षत्र), evaluating an unassisted active-recall manuscript written on the "Blank Page" (कोरा कागद).
+  const systemInstruction = `You are the High Grand Assessor of "Nakshatra", evaluating an unassisted active-recall manuscript written on the "Blank Page".
 The learner attempted to reconstruct the core concepts and mechanisms of topic "${topic.name}" from unassisted memory.
 
 TARGET CONCEPTS ROSTER:
@@ -52,7 +51,7 @@ CRITICAL EVALUATION GUIDELINES:
 4. "misconceptions": Factual errors, flawed deductions, or false claims found in the user's text. You MUST extract "userExcerpt", explain the misconception, and provide the canonical correction.
 5. "score": Integer 0 to 100 reflecting the depth, accuracy, and breadth of retrieval.
 6. "reflection": 2-3 sentences offering profound, constructive pedagogical feedback on their mental model.
-7. Language: Output explanations and feedback in ${language === "mr" ? "Marathi (मराठी)" : "English"}.
+7. Language: Output explanations and feedback in English.
 
 Return JSON matching the schema.`;
 
@@ -151,14 +150,14 @@ export async function generateApprenticeReply({
   concept: Concept;
   canonicalText?: string;
   conversationHistory: { role: "user" | "apprentice"; text: string }[];
-  language?: "en" | "mr";
+  language?: string;
 }): Promise<string> {
   const ai = getGenAI();
   const model = getLiteModel();
 
-  const systemInstruction = `You are the Apprentice (शिष्य) in "Nakshatra" (नक्षत्र), an ancient-modern celestial learning academy.
+  const systemInstruction = `You are the Apprentice in "Nakshatra", an ancient-modern celestial learning academy.
 You are practicing the Feynman Technique: the user is your Master / Teacher, and you are their eager, intellectually curious student who knows NOTHING about this topic.
-The concept being taught is: "${concept.name}" (${concept.marathiName || ""}).
+The concept being taught is: "${concept.name}".
 CANONICAL DEFINITION FOR YOUR REFERENCE (DO NOT RECITE):
 "${concept.definition}"
 ${canonicalText ? `SOURCE CONTEXT: ${canonicalText.slice(0, 1500)}` : ""}
@@ -169,7 +168,7 @@ STRICT PERSONA RULES:
 3. ASK FOR EXAMPLES: If the explanation is abstract, ask for an everyday metaphor or real-world example ("Master, how can I picture this in everyday life?").
 4. SPOT HOLES: If the teacher gives a vague or circular explanation, gently ask what a specific term actually means in simple words.
 5. SPOT CONTRADICTIONS: If the teacher says something that contradicts the canonical definition or their own earlier words, naively point out the paradox ("Wait, earlier you said X... but if that's true, wouldn't Y happen? How do those two connect?").
-6. LANGUAGE: If the teacher addresses you in Marathi, respond in respectful, curious Marathi ("गुरुजी, मला एक सांगा..."). If English, respond in English.`;
+6. LANGUAGE: Always respond in respectful, curious English.`;
 
   // Ensure Gemini contents alternate properly and begin with a "user" turn
   const filteredHistory =
@@ -199,7 +198,7 @@ STRICT PERSONA RULES:
     return response.text;
   });
 
-  return result?.trim() || (language === "mr" ? "गुरुजी, मला हे थोडे अधिक समजावून सांगाल का?" : "Could you explain that part a bit more simply, Master?");
+  return result?.trim() || "Could not understand, Master. Could you explain that part a bit more simply?";
 }
 
 /**
@@ -212,7 +211,7 @@ export async function generateApprenticeGapReport({
 }: {
   concept: Concept;
   conversationHistory: { role: "user" | "apprentice"; text: string }[];
-  language?: "en" | "mr";
+  language?: string;
 }): Promise<ApprenticeGapReport> {
   const ai = getGenAI();
   const model = getPrimaryModel();
@@ -221,7 +220,7 @@ export async function generateApprenticeGapReport({
     .map((m) => `${m.role === "user" ? "TEACHER" : "APPRENTICE"}: ${m.text}`)
     .join("\n\n");
 
-  const systemInstruction = `You are the High Chancellor of the Feynman Academy in "Nakshatra" (नक्षत्र).
+  const systemInstruction = `You are the High Chancellor of the Feynman Academy in "Nakshatra".
 Analyze the following teaching dialogue where a user attempted to teach the concept "${concept.name}" to their apprentice.
 CANONICAL CONCEPT PRINCIPLE:
 "${concept.definition}"
@@ -233,7 +232,7 @@ EVALUATE THE TEACHING FIDELITY:
 4. "nextQuestions": EXACTLY 3 profound questions the learner should contemplate next to achieve complete mastery.
 5. "feynmanScore": Integer 0 to 100 based on clarity, simplicity, depth, and pedagogical skill.
 6. "summary": 2-3 sentences synthesizing the learner's true mastery of this concept.
-7. Language: ${language === "mr" ? "Marathi (मराठी)" : "English"}.
+7. Language: English.
 
 Return JSON matching the schema.`;
 

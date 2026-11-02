@@ -763,20 +763,6 @@ export async function getOrGenerateDailyAiThread(
   return thread;
 }
 
-const MR_DIGITS = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
-function toMarathiDigits(strOrNum: number | string): string {
-  return String(strOrNum).replace(/\d/g, (d) => MR_DIGITS[Number(d)] || d);
-}
-
-const MR_MONTHS = [
-  "जानेवारी", "फेब्रुवारी", "मार्च", "एप्रिल", "मे", "जून",
-  "जुलै", "ऑगस्ट", "सप्टेंबर", "ऑक्टोबर", "नोव्हेंबर", "डिसेंबर"
-];
-
-const MR_DAYS = [
-  "रविवार", "सोमवार", "मंगळवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार"
-];
-
 const EN_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const EN_MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -796,16 +782,12 @@ export async function getObservatoryOverview(uid: string): Promise<ObservatoryOv
 
   // Greetings
   let greetingEn = "Good evening, Astronomer";
-  let greetingMr = "शुभ संध्याकाळ, खगोलविद";
   if (hour >= 5 && hour < 12) {
     greetingEn = "Good morning, Astronomer";
-    greetingMr = "शुभ प्रभात, खगोलविद";
   } else if (hour >= 12 && hour < 17) {
     greetingEn = "Good afternoon, Astronomer";
-    greetingMr = "शुभ दुपार, खगोलविद";
   } else if (hour >= 21 || hour < 5) {
     greetingEn = "The midnight sky is still, Astronomer";
-    greetingMr = "शुभ रात्री, खगोलविद";
   }
 
   // Dates
@@ -815,7 +797,6 @@ export async function getObservatoryOverview(uid: string): Promise<ObservatoryOv
   const year = now.getFullYear();
 
   const dateEn = `${EN_DAYS[dayOfWeek]}, ${dayOfMonth} ${EN_MONTHS[monthIdx]} ${year}`;
-  const dateMr = `${MR_DAYS[dayOfWeek]}, ${toMarathiDigits(dayOfMonth)} ${MR_MONTHS[monthIdx]} ${toMarathiDigits(year)}`;
 
   // Average sky brightness and fading stars
   let totalRetrievability = 0;
@@ -900,9 +881,9 @@ export async function getObservatoryOverview(uid: string): Promise<ObservatoryOv
 
   return {
     greetingEn,
-    greetingMr,
+    greetingMr: "",
     dateEn,
-    dateMr,
+    dateMr: "",
     totalStars: concepts.length,
     averageSkyBrightness,
     weeklyMinutes,

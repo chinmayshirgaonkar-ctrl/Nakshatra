@@ -21,8 +21,6 @@ export default async function TrialsPage() {
               <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
                 Crucible of Intellect
               </span>
-              <span className="h-1 w-1 rounded-full bg-gold/50" />
-              <span className="font-tiro text-xs text-mist">परीक्षा दालन</span>
             </div>
             <h1 className="font-fraunces text-3xl font-light text-ivory">The Trials</h1>
           </div>

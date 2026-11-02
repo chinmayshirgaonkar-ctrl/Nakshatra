@@ -37,9 +37,6 @@ export function StarTooltip({ star, screenPos }: StarTooltipProps) {
           <h4 className="font-fraunces text-base font-normal text-ivory leading-snug">
             {star.concept.name}
           </h4>
-          {star.concept.marathiName && (
-            <p className="font-tiro text-xs text-mist">{star.concept.marathiName}</p>
-          )}
         </div>
       </div>
 

@@ -14,7 +14,6 @@ export default function ErrorBoundary({
       error={error}
       reset={reset}
       chamberName="The Sky"
-      marathiName="आकाश दालन"
     />
   );
 }

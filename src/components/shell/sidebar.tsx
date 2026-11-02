@@ -21,7 +21,6 @@ import { useRouter } from "next/navigation";
 
 export interface NavItem {
   title: string;
-  marathi: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
 }
@@ -29,55 +28,46 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   {
     title: "Observatory",
-    marathi: "वेधशाळा",
     href: "/observatory",
     icon: Compass,
   },
   {
     title: "Library",
-    marathi: "ग्रंथालय",
     href: "/library",
     icon: BookOpen,
   },
   {
     title: "Ask the Archive",
-    marathi: "ग्रंथालय संवाद",
     href: "/archive",
     icon: Search,
   },
   {
     title: "Reading Room",
-    marathi: "वाचनकक्ष",
     href: "/reading-room",
     icon: Eye,
   },
   {
     title: "The Sky",
-    marathi: "आकाश",
     href: "/sky",
     icon: Sparkles,
   },
   {
     title: "Trials",
-    marathi: "परीक्षा",
     href: "/trials",
     icon: Swords,
   },
   {
     title: "Blank Page",
-    marathi: "कोरा कागद",
     href: "/blank-page",
     icon: Feather,
   },
   {
     title: "The Apprentice",
-    marathi: "शिष्य",
     href: "/apprentice",
     icon: GraduationCap,
   },
   {
     title: "Museum of Mistakes",
-    marathi: "चुकांचे संग्रहालय",
     href: "/mistakes",
     icon: Archive,
   },
@@ -113,9 +103,6 @@ export function Sidebar() {
             <div className="flex items-baseline gap-2">
               <span className="font-fraunces text-2xl font-light tracking-wide text-ivory group-hover:text-gold transition-colors">
                 Nakshatra
-              </span>
-              <span className="font-tiro text-xs text-gold-soft font-normal">
-                नक्षत्र
               </span>
             </div>
             <span className="text-[10px] font-mono tracking-widest text-mist uppercase">
@@ -158,14 +145,6 @@ export function Sidebar() {
                   {item.title}
                 </span>
               </div>
-              <span
-                className={cn(
-                  "font-tiro text-xs transition-opacity duration-300",
-                  isActive ? "text-gold opacity-100" : "text-mist/70 group-hover:opacity-100"
-                )}
-              >
-                {item.marathi}
-              </span>
 
               {isActive && (
                 <div className="absolute -left-1 top-1/2 -translate-y-1/2 h-6 w-1 rounded-r-full bg-gold shadow-astral" />
@@ -186,7 +165,7 @@ export function Sidebar() {
           </div>
           <div className="flex items-baseline justify-between">
             <span className="font-fraunces text-lg text-ivory">Living Cosmos</span>
-            <span className="text-[11px] font-tiro text-gold-soft">FSRS 5.0</span>
+            <span className="text-[11px] font-mono text-gold-soft">FSRS 5.0</span>
           </div>
         </div>
 
@@ -199,7 +178,6 @@ export function Sidebar() {
             <LogOut className="h-3.5 w-3.5" />
             <span>Leave Observatory</span>
           </div>
-          <span className="font-tiro text-[11px] opacity-70">निर्गमन</span>
         </button>
       </div>
     </aside>

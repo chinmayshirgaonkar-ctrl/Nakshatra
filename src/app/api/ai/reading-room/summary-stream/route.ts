@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { materialId, length, language = "en", regenerate = false } = body;
+    const { materialId, length, regenerate = false } = body;
 
     if (!materialId || !length) {
       return NextResponse.json(
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     // If cached and not regenerating, return cached summary directly
     if (!regenerate) {
-      const cached = await checkAiCache(user.uid, materialId, kind, language);
+      const cached = await checkAiCache(user.uid, materialId, kind, "en");
       if (cached && typeof cached === "string" && cached.trim()) {
         return NextResponse.json({ cached: true, text: cached });
       }
@@ -59,7 +59,6 @@ export async function POST(request: NextRequest) {
       materialId,
       text: fullText,
       length: length as SummaryLength,
-      language: language === "mr" ? "mr" : "en",
     });
 
     return new Response(stream, {

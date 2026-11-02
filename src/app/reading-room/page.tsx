@@ -64,8 +64,6 @@ export default async function ReadingRoomPage({ searchParams }: ReadingRoomPageP
               <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
                 Deep Study Lectern
               </span>
-              <span className="h-1 w-1 rounded-full bg-gold/50" />
-              <span className="font-tiro text-xs text-mist">वाचनकक्ष</span>
             </div>
             <h1 className="font-fraunces text-3xl font-light text-ivory">The Reading Room</h1>
           </div>

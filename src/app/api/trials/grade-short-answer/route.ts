@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { questionPrompt, modelAnswer, rubricKeywords, userAnswer, language = "en" } = body;
+    const { questionPrompt, modelAnswer, rubricKeywords, userAnswer } = body;
 
     if (!questionPrompt || !userAnswer?.trim()) {
       return NextResponse.json(
@@ -35,7 +35,6 @@ export async function POST(request: NextRequest) {
       modelAnswer,
       rubricKeywords: rubricKeywords || [],
       userAnswer: userAnswer.trim(),
-      language: language === "mr" ? "mr" : "en",
     });
 
     return NextResponse.json({ success: true, result });

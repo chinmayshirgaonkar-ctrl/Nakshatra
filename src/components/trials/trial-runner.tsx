@@ -390,7 +390,7 @@ export function TrialRunner({
                       : "border-gold/15 bg-veil/30 text-mist hover:text-ivory hover:border-gold/30"
                   )}
                 >
-                  <span>TRUE (खरे)</span>
+                  <span>TRUE</span>
                   <span className="text-xs font-mono text-mist border border-gold/20 px-2 py-0.5 rounded">
                     1
                   </span>
@@ -406,7 +406,7 @@ export function TrialRunner({
                       : "border-gold/15 bg-veil/30 text-mist hover:text-ivory hover:border-gold/30"
                   )}
                 >
-                  <span>FALSE (खोटे)</span>
+                  <span>FALSE</span>
                   <span className="text-xs font-mono text-mist border border-gold/20 px-2 py-0.5 rounded">
                     2
                   </span>
@@ -448,7 +448,7 @@ export function TrialRunner({
             {/* Confidence Picker (Required Before Reveal) */}
             <div className="pt-4 border-t border-gold/15 space-y-2">
               <label className="text-[11px] font-mono uppercase tracking-wider text-mist block text-center">
-                Calibrate Conviction before Reveal (तुमचा आत्मविश्वास)
+                Calibrate Conviction before Reveal
               </label>
 
               <div className="grid grid-cols-3 gap-2 max-w-md mx-auto">
@@ -583,7 +583,7 @@ export function TrialRunner({
             {!evaluation?.isCorrect && evaluation?.memoryHook && (
               <div className="rounded-2xl border border-gold/25 bg-veil/70 p-4">
                 <span className="text-[10px] font-mono uppercase tracking-wider text-gold block mb-1">
-                  💡 Museum Memory Hook (स्मरणसूत्र)
+                  💡 Museum Memory Hook
                 </span>
                 <p className="font-fraunces text-sm text-ivory italic">
                   &ldquo;{evaluation.memoryHook}&rdquo;

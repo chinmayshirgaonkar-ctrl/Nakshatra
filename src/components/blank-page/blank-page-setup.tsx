@@ -19,7 +19,7 @@ interface BlankPageSetupProps {
   topics: Topic[];
   concepts: Concept[];
   initialTopicId?: string;
-  onStart: (topic: Topic, durationMinutes: number | null, language: "en" | "mr") => void;
+  onStart: (topic: Topic, durationMinutes: number | null) => void;
 }
 
 export function BlankPageSetup({
@@ -33,7 +33,6 @@ export function BlankPageSetup({
     initialTopicId || (topics.length > 0 ? topics[0].id : "")
   );
   const [durationMinutes, setDurationMinutes] = useState<number | null>(null);
-  const [language, setLanguage] = useState<"en" | "mr">("en");
 
   const selectedTopic = topics.find((t) => t.id === selectedTopicId);
   const selectedSubject = subjects.find(
@@ -46,7 +45,7 @@ export function BlankPageSetup({
 
   const handleStart = () => {
     if (!selectedTopic) return;
-    onStart(selectedTopic, durationMinutes, language);
+    onStart(selectedTopic, durationMinutes);
   };
 
   return (
@@ -61,8 +60,6 @@ export function BlankPageSetup({
           <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
             Unassisted Active Recall
           </span>
-          <span className="h-1 w-1 rounded-full bg-gold/50" />
-          <span className="font-tiro text-xs text-mist">कोरा कागद विधी</span>
         </div>
 
         <h1 className="font-fraunces text-3xl md:text-4xl font-light text-ivory tracking-tight">
@@ -95,7 +92,7 @@ export function BlankPageSetup({
                 return (
                   <option key={t.id} value={t.id}>
                     {sub ? `${sub.name} — ` : ""}
-                    {t.name} {t.marathiName ? `(${t.marathiName})` : ""}
+                    {t.name}
                   </option>
                 );
               })}
@@ -135,43 +132,6 @@ export function BlankPageSetup({
                 <span>{t.label}</span>
               </button>
             ))}
-          </div>
-        </div>
-
-        {/* 3. Evaluation Language */}
-        <div className="flex items-center justify-between rounded-xl border border-gold/15 bg-veil/30 p-3.5">
-          <div>
-            <span className="font-fraunces text-sm text-ivory block">
-              Evaluation Language
-            </span>
-            <span className="text-[11px] text-mist font-manrope">
-              Feedback and canonical comparisons language.
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setLanguage("en")}
-              className={`px-3 py-1 rounded-full text-xs font-mono transition-colors ${
-                language === "en"
-                  ? "bg-gold text-night font-semibold shadow-astral"
-                  : "text-mist hover:text-ivory"
-              }`}
-            >
-              English
-            </button>
-            <button
-              type="button"
-              onClick={() => setLanguage("mr")}
-              className={`px-3 py-1 rounded-full text-xs font-tiro transition-colors ${
-                language === "mr"
-                  ? "bg-gold text-night font-semibold shadow-astral"
-                  : "text-mist hover:text-ivory"
-              }`}
-            >
-              मराठी
-            </button>
           </div>
         </div>
 

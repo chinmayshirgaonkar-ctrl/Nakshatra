@@ -21,8 +21,6 @@ export function ExamCountdownCard({ exams }: ExamCountdownCardProps) {
           <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
             Upcoming Milestones
           </span>
-          <span className="h-1 w-1 rounded-full bg-gold/50" />
-          <span className="font-tiro text-xs text-mist">परीक्षा गणती</span>
         </div>
         <span className="text-xs font-mono text-mist">
           {exams.length} Exam{exams.length === 1 ? "" : "s"} Scheduled

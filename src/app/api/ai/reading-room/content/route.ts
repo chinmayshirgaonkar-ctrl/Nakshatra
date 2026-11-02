@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { materialId, tab, language = "en", regenerate = false } = body;
+    const { materialId, tab, regenerate = false } = body;
 
     if (!materialId || !tab) {
       return NextResponse.json(
@@ -42,7 +42,6 @@ export async function POST(request: NextRequest) {
     }
 
     const fullText = data.chunks.map((c) => c.text).join("\n\n");
-    const lang = language === "mr" ? "mr" : "en";
 
     let result;
     switch (tab) {
@@ -51,7 +50,6 @@ export async function POST(request: NextRequest) {
           uid: user.uid,
           materialId,
           text: fullText,
-          language: lang,
           regenerate: !!regenerate,
         });
         break;
@@ -61,7 +59,6 @@ export async function POST(request: NextRequest) {
           uid: user.uid,
           materialId,
           text: fullText,
-          language: lang,
           regenerate: !!regenerate,
         });
         break;
@@ -71,7 +68,6 @@ export async function POST(request: NextRequest) {
           uid: user.uid,
           materialId,
           text: fullText,
-          language: lang,
           regenerate: !!regenerate,
         });
         break;
@@ -81,7 +77,6 @@ export async function POST(request: NextRequest) {
           uid: user.uid,
           materialId,
           text: fullText,
-          language: lang,
           regenerate: !!regenerate,
         });
         break;

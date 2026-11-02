@@ -24,7 +24,7 @@ export async function generateQuizQuestions({
   count?: number;
   difficulty?: TrialDifficulty;
   types?: QuestionType[];
-  language?: "en" | "mr";
+  language?: string;
 }): Promise<TrialQuestion[]> {
   if (concepts.length === 0) {
     throw new Error("No concepts available to generate questions from.");
@@ -37,7 +37,6 @@ export async function generateQuizQuestions({
   const conceptsRoster = concepts.map((c) => ({
     id: c.id,
     name: c.name,
-    marathiName: c.marathiName,
     definition: c.definition,
     importance: c.importance,
   }));
@@ -49,7 +48,7 @@ export async function generateQuizQuestions({
       ? "BRUTAL: Devious edge-cases, common cognitive traps, subtle counter-intuitive mechanisms, rigorous multi-step deduction. Distractors must mirror pervasive expert errors."
       : "HONEST: Rigorous, realistic testing of deep comprehension, mechanism vs outcome, and practical scenarios. Plausible, non-trivial distractors.";
 
-  const systemInstruction = `You are the High Grand Examiner of "Nakshatra" (नक्षत्र), conducting the celestial Trials of intellect.
+  const systemInstruction = `You are the High Grand Examiner of "Nakshatra", conducting the celestial Trials of intellect.
 Your mission is to generate exactly ${count} profound evaluation questions based on the candidate concepts.
 
 CRITICAL RULES:
@@ -61,7 +60,7 @@ CRITICAL RULES:
 6. For "short_answer": Ask the learner to explain an intricate mechanism or trade-off in their own words. Provide a definitive "modelAnswer" and 2-4 "rubricKeywords".
 7. Allowed question types: [${types.join(", ")}]. Distribute types cleanly across the quiz.
 8. Difficulty calibration: ${difficultyPrompt}
-9. Language: ${language === "mr" ? "Formulate the questions and explanations in authentic Marathi (मराठी), with English technical terms in parentheses where helpful." : "Formulate in pristine English."}
+9. Language: Formulate in pristine English.
 
 Output format: Return a JSON object matching this schema:
 {
@@ -127,7 +126,7 @@ export async function gradeShortAnswer({
   modelAnswer?: string;
   rubricKeywords?: string[];
   userAnswer: string;
-  language?: "en" | "mr";
+  language?: string;
 }) {
   const ai = getGenAI();
   const model = getLiteModel();
@@ -148,7 +147,7 @@ Output fields:
 - "correctReasoning": definitive explanation of the law/principle.
 - "memoryHook": (if score < 2) a vivid 1-line celestial mnemonic hook to anchor retention.
 
-Language: ${language === "mr" ? "मराठी (Marathi)" : "English"}.`;
+Language: English.`;
 
   const userPrompt = `QUESTION:
 ${questionPrompt}

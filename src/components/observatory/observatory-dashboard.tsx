@@ -40,17 +40,12 @@ export function ObservatoryDashboard({ overview }: ObservatoryDashboardProps) {
               <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
                 {overview.dateEn}
               </span>
-              <span className="h-1 w-1 rounded-full bg-gold/50" />
-              <span className="font-tiro text-xs text-mist">{overview.dateMr}</span>
             </div>
 
             {/* Time-of-Day Greeting */}
             <h1 className="font-fraunces text-3xl md:text-5xl font-light text-ivory tracking-tight leading-tight">
               {overview.greetingEn}.
             </h1>
-            <p className="font-tiro text-base md:text-lg text-gold-soft/90">
-              {overview.greetingMr}.
-            </p>
 
             <p className="font-manrope text-xs md:text-sm text-mist leading-relaxed pt-1">
               Welcome to your celestial learning sanctuary. Nakshatra maps your concepts into living constellations and calculates memory decay with the Free Spaced Repetition algorithm.
@@ -84,8 +79,6 @@ export function ObservatoryDashboard({ overview }: ObservatoryDashboardProps) {
               <span className="text-[10px] font-mono uppercase tracking-wider text-mist">
                 Firmament Scale
               </span>
-              <span className="h-1 w-1 rounded-full bg-gold/50" />
-              <span className="text-[10px] font-tiro text-gold-soft">एकूण तारे</span>
             </div>
             <div className="font-fraunces text-3xl text-ivory">
               {overview.totalStars} <span className="text-lg font-light text-mist">Stars</span>
@@ -106,8 +99,6 @@ export function ObservatoryDashboard({ overview }: ObservatoryDashboardProps) {
               <span className="text-[10px] font-mono uppercase tracking-wider text-mist">
                 Radiance
               </span>
-              <span className="h-1 w-1 rounded-full bg-gold/50" />
-              <span className="text-[10px] font-tiro text-gold-soft">सरासरी तेज</span>
             </div>
             <div className="font-fraunces text-3xl text-aurora">
               {overview.averageSkyBrightness}%
@@ -128,14 +119,12 @@ export function ObservatoryDashboard({ overview }: ObservatoryDashboardProps) {
               <span className="text-[10px] font-mono uppercase tracking-wider text-mist">
                 Lunar Streak
               </span>
-              <span className="h-1 w-1 rounded-full bg-gold/50" />
-              <span className="text-[10px] font-tiro text-gold-soft">चंद्रकला सातत्य</span>
             </div>
             <div className="font-fraunces text-3xl text-ivory">
               {overview.streakDays} <span className="text-lg font-light text-mist">Days</span>
             </div>
             <p className="text-[11px] text-mist font-manrope">
-              {overview.currentMoonPhase.en} ({overview.currentMoonPhase.mr})
+              {overview.currentMoonPhase.en}
             </p>
           </div>
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-gold/30 bg-veil text-gold shadow-sm shrink-0">

@@ -21,7 +21,6 @@ export async function POST(req: NextRequest) {
     const {
       conceptId,
       conversationHistory = [],
-      language = "en",
     } = body;
 
     if (!conceptId || conversationHistory.length === 0) {
@@ -41,7 +40,6 @@ export async function POST(req: NextRequest) {
     const gapReport = await generateApprenticeGapReport({
       concept,
       conversationHistory,
-      language,
     });
 
     // Save lesson and update FSRS card in Firestore
@@ -50,7 +48,7 @@ export async function POST(req: NextRequest) {
       conceptName: concept.name,
       subjectId: concept.subjectId,
       topicId: concept.topicId,
-      language,
+      language: "en",
       messages: conversationHistory.map((m: any, idx: number) => ({
         id: `msg-${idx}`,
         sender: m.role,

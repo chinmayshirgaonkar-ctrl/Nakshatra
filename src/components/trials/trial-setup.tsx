@@ -49,7 +49,6 @@ export function TrialSetup({
   const [targetId, setTargetId] = React.useState<string>(initialTargetId || "");
   const [count, setCount] = React.useState<number>(5);
   const [difficulty, setDifficulty] = React.useState<TrialDifficulty>("honest");
-  const [language, setLanguage] = React.useState<"en" | "mr">("en");
   const [selectedTypes, setSelectedTypes] = React.useState<QuestionType[]>([
     "mcq",
     "true_false_why",
@@ -91,7 +90,6 @@ export function TrialSetup({
           count,
           difficulty,
           types: selectedTypes,
-          language,
         }),
       });
 
@@ -135,7 +133,7 @@ export function TrialSetup({
         {/* 1. Scope Selector */}
         <div>
           <label className="text-xs font-mono uppercase text-mist block mb-2.5">
-            1. Constellation Scope (परीक्षेचे कार्यक्षेत्र)
+            1. Constellation Scope
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             <button
@@ -319,40 +317,6 @@ export function TrialSetup({
                 </button>
               );
             })}
-          </div>
-        </div>
-
-        {/* 5. Language Toggle */}
-        <div className="flex items-center justify-between p-3.5 rounded-2xl border border-gold/15 bg-veil/40">
-          <div>
-            <span className="font-fraunces text-sm text-ivory block">
-              Evaluation Language
-            </span>
-            <span className="text-[11px] font-manrope text-mist">
-              Questions and grading rubrics language.
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5 bg-deep border border-gold/20 rounded-xl p-0.5">
-            <button
-              type="button"
-              onClick={() => setLanguage("en")}
-              className={cn(
-                "px-3 py-1 text-xs font-mono rounded-lg transition-all",
-                language === "en" ? "bg-gold text-night font-bold shadow-sm" : "text-mist"
-              )}
-            >
-              English
-            </button>
-            <button
-              type="button"
-              onClick={() => setLanguage("mr")}
-              className={cn(
-                "px-3 py-1 text-xs font-tiro rounded-lg transition-all",
-                language === "mr" ? "bg-gold text-night font-bold shadow-sm" : "text-mist"
-              )}
-            >
-              मराठी
-            </button>
           </div>
         </div>
       </div>

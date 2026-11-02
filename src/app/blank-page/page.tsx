@@ -7,7 +7,7 @@ import { BlankPageClient } from "@/components/blank-page/blank-page-client";
 import { Loader2 } from "lucide-react";
 
 export const metadata = {
-  title: "Blank Page (कोरा कागद) | Nakshatra",
+  title: "Blank Page | Nakshatra",
   description: "Active unassisted recall parchment with Gemini fidelity analysis and FSRS rating updates.",
 };
 

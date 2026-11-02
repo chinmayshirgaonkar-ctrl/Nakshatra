@@ -63,7 +63,7 @@ export async function checkAiCache(
   uid: string,
   materialId: string,
   kind: string,
-  language: "en" | "mr"
+  language: string = "en"
 ): Promise<any | null> {
   try {
     const cacheKey = `${materialId}_${kind}_${language}`;
@@ -82,7 +82,7 @@ export async function saveAiCache(
   uid: string,
   materialId: string,
   kind: string,
-  language: "en" | "mr",
+  language: string = "en",
   content: any,
   model: string
 ): Promise<void> {

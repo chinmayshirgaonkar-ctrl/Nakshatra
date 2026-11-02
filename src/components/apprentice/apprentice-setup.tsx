@@ -23,7 +23,7 @@ interface ApprenticeSetupProps {
   subjects: Subject[];
   topics: Topic[];
   initialConceptId?: string;
-  onStartLesson: (concept: Concept, language: "en" | "mr") => void;
+  onStartLesson: (concept: Concept) => void;
 }
 
 export function ApprenticeSetup({
@@ -38,7 +38,6 @@ export function ApprenticeSetup({
   );
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [language, setLanguage] = useState<"en" | "mr">("en");
 
   // Filter concepts
   const filteredConcepts = useMemo(() => {
@@ -53,8 +52,7 @@ export function ApprenticeSetup({
       list = list.filter(
         (c) =>
           c.name.toLowerCase().includes(q) ||
-          c.definition.toLowerCase().includes(q) ||
-          (c.marathiName && c.marathiName.toLowerCase().includes(q))
+          c.definition.toLowerCase().includes(q)
       );
     }
 
@@ -70,7 +68,7 @@ export function ApprenticeSetup({
 
   const selectedConcept = concepts.find((c) => c.id === selectedConceptId);
   const selectedTopic = topics.find((t) => t.id === selectedConcept?.topicId);
-  const selectedSubject = subjects.find((s) => s.id === selectedConcept?.subjectId);
+  const selectedSubject = subjects.find(s => s.id === selectedConcept?.subjectId);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-300">
@@ -81,8 +79,6 @@ export function ApprenticeSetup({
             <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
               Feynman Technique Dialogue
             </span>
-            <span className="h-1 w-1 rounded-full bg-gold/50" />
-            <span className="font-tiro text-xs text-mist">शिष्य संवाद</span>
           </div>
           <h1 className="font-fraunces text-3xl font-light text-ivory">
             The Apprentice
@@ -92,32 +88,6 @@ export function ApprenticeSetup({
             Explain the concept in simple words without jargon; if your explanation has holes or contradictions,
             the apprentice will innocently ask you to clarify.
           </p>
-        </div>
-
-        {/* Language Selection */}
-        <div className="flex items-center gap-1.5 rounded-full border border-gold/20 bg-deep/80 p-1 self-start md:self-auto">
-          <button
-            type="button"
-            onClick={() => setLanguage("en")}
-            className={`px-4 py-1.5 rounded-full text-xs font-mono transition-colors ${
-              language === "en"
-                ? "bg-gold text-night font-semibold shadow-astral"
-                : "text-mist hover:text-ivory"
-            }`}
-          >
-            English
-          </button>
-          <button
-            type="button"
-            onClick={() => setLanguage("mr")}
-            className={`px-4 py-1.5 rounded-full text-xs font-tiro transition-colors ${
-              language === "mr"
-                ? "bg-gold text-night font-semibold shadow-astral"
-                : "text-mist hover:text-ivory"
-            }`}
-          >
-            मराठी
-          </button>
         </div>
       </div>
 
@@ -189,11 +159,6 @@ export function ApprenticeSetup({
                         <span className="font-fraunces text-sm font-medium text-ivory truncate">
                           {concept.name}
                         </span>
-                        {concept.marathiName && (
-                          <span className="font-tiro text-xs text-mist truncate">
-                            ({concept.marathiName})
-                          </span>
-                        )}
                       </div>
                       <p className="text-[11px] font-manrope text-mist/80 line-clamp-1">
                         {concept.definition}
@@ -267,15 +232,11 @@ export function ApprenticeSetup({
                   type="button"
                   variant="celestial"
                   size="lg"
-                  onClick={() => onStartLesson(selectedConcept, language)}
+                  onClick={() => onStartLesson(selectedConcept)}
                   className="w-full gap-2 text-night font-semibold shadow-astral"
                 >
                   <GraduationCap className="w-4 h-4" />
-                  <span>
-                    {language === "mr"
-                      ? "शिष्य बोलाविणे (Begin Lesson)"
-                      : "Summon The Apprentice"}
-                  </span>
+                  <span>Summon The Apprentice</span>
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </div>

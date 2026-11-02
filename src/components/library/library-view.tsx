@@ -69,7 +69,6 @@ export function LibraryView({
   // Subject Handlers
   const handleCreateSubject = async (data: {
     name: string;
-    marathiName?: string;
     color: string;
     icon: string;
   }) => {
@@ -80,7 +79,7 @@ export function LibraryView({
 
   const handleUpdateSubject = async (
     id: string,
-    data: { name?: string; marathiName?: string; color?: string; icon?: string }
+    data: { name?: string; color?: string; icon?: string }
   ) => {
     await updateSubjectAction(id, data);
     setSubjects((prev) =>
@@ -117,7 +116,6 @@ export function LibraryView({
     sourceType: any;
     sourceUrl?: string;
     rawText: string;
-    language: "en" | "mr";
   }) => {
     // 1. Save material & chunks to DB
     const { material, fullText } = await createMaterialAction(data);
@@ -141,7 +139,6 @@ export function LibraryView({
           topicId: material.topicId,
           subjectId: material.subjectId,
           text: fullText,
-          language: data.language,
         }),
       });
 
@@ -222,8 +219,6 @@ export function LibraryView({
             <span className="font-mono text-[10px] uppercase tracking-widest text-gold-soft">
               Vault of Tomes
             </span>
-            <span className="h-1 w-1 rounded-full bg-gold/50" />
-            <span className="font-tiro text-xs text-mist">ग्रंथालय दालन</span>
           </div>
           <h1 className="font-fraunces text-3xl font-light text-ivory">The Library</h1>
         </div>
@@ -273,9 +268,9 @@ export function LibraryView({
             onChange={(e) => setSortBy(e.target.value as any)}
             className="h-10 rounded-xl border border-gold/20 bg-deep px-3 text-xs text-ivory focus:outline-none focus:border-gold"
           >
-            <option value="recent">Most Recent (नुकतेच)</option>
-            <option value="weakest">Weakest Memory (पुनरावलोकन आवश्यक)</option>
-            <option value="alpha">Alphabetical (अकारविल्हे)</option>
+            <option value="recent">Most Recent</option>
+            <option value="weakest">Weakest Memory</option>
+            <option value="alpha">Alphabetical</option>
           </select>
         </div>
       </div>
@@ -328,11 +323,6 @@ export function LibraryView({
                       <h2 className="font-fraunces text-xl text-ivory font-normal">
                         {topic.name}
                       </h2>
-                      {topic.marathiName && (
-                        <span className="text-[11px] font-tiro text-gold-soft">
-                          {topic.marathiName}
-                        </span>
-                      )}
                     </div>
                   </div>
 

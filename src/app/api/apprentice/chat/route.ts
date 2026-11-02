@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
       );
     }
     const body = await req.json();
-    const { conceptId, conversationHistory = [], language = "en" } = body;
+    const { conceptId, conversationHistory = [] } = body;
 
     if (!conceptId || conversationHistory.length === 0) {
       return NextResponse.json(
@@ -51,7 +51,6 @@ export async function POST(req: NextRequest) {
       concept,
       canonicalText,
       conversationHistory,
-      language,
     });
 
     return NextResponse.json({ reply });

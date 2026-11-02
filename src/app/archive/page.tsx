@@ -7,7 +7,7 @@ import { ArchiveChat } from "@/components/archive/archive-chat";
 import { Loader2 } from "lucide-react";
 
 export const metadata = {
-  title: "Ask the Archive (ग्रंथालय संवाद) | Nakshatra",
+  title: "Ask the Archive | Nakshatra",
   description: "Chat grounded strictly in your personal study materials with Firestore vector search and inline passage citations.",
 };
 

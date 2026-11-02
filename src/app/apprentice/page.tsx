@@ -7,7 +7,7 @@ import { ApprenticeClient } from "@/components/apprentice/apprentice-client";
 import { Loader2 } from "lucide-react";
 
 export const metadata = {
-  title: "The Apprentice (शिष्य) | Nakshatra",
+  title: "The Apprentice | Nakshatra",
   description: "Feynman technique chamber with an inquisitive student AI and comprehensive Gap Report.",
 };
 

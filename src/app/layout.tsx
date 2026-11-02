@@ -3,8 +3,6 @@ import {
   Fraunces,
   Manrope,
   JetBrains_Mono,
-  Noto_Sans_Devanagari,
-  Tiro_Devanagari_Marathi,
 } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -29,22 +27,8 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const notoSansDevanagari = Noto_Sans_Devanagari({
-  subsets: ["devanagari", "latin"],
-  variable: "--font-noto-devanagari",
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
-
-const tiroDevanagariMarathi = Tiro_Devanagari_Marathi({
-  subsets: ["devanagari", "latin"],
-  variable: "--font-tiro-marathi",
-  weight: ["400"],
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  title: "Nakshatra (नक्षत्र) — The Celestial Learning OS",
+  title: "Nakshatra — The Celestial Learning OS",
   description: "A personal learning operating system that turns study material into a living night sky.",
 };
 
@@ -57,7 +41,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${fraunces.variable} ${manrope.variable} ${jetbrainsMono.variable} ${notoSansDevanagari.variable} ${tiroDevanagariMarathi.variable}`}
+      className={`${fraunces.variable} ${manrope.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-screen bg-background font-manrope text-foreground antialiased">
         <ThemeProvider
