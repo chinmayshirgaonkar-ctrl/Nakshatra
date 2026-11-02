@@ -172,7 +172,9 @@ ${userAnswer}`;
       },
     });
 
-    const parsed = JSON.parse(response.text || "{}");
+    const raw = response.text || "{}";
+    const cleaned = raw.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
+    const parsed = JSON.parse(cleaned || "{}");
     return ShortAnswerGradingResponseSchema.parse(parsed);
   });
 

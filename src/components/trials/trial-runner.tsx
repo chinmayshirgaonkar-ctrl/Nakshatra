@@ -86,21 +86,26 @@ export function TrialRunner({
       let evalData: any = {};
 
       const postWithRetry = async (url: string, bodyObj: any): Promise<Response> => {
-        try {
-          return await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(bodyObj),
-          });
-        } catch {
-          // Automatic single retry on momentary server disconnect
-          await new Promise((r) => setTimeout(r, 800));
-          return await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(bodyObj),
-          });
+        let lastErr: any;
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          try {
+            const res = await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(bodyObj),
+            });
+            if (res.ok || res.status === 400 || res.status === 429) {
+              return res;
+            }
+            lastErr = new Error(`Server returned ${res.status}`);
+          } catch (err: any) {
+            lastErr = err;
+          }
+          if (attempt < 3) {
+            await new Promise((r) => setTimeout(r, attempt * 1000));
+          }
         }
+        throw lastErr || new Error("Connection failed after multiple attempts.");
       };
 
       if (currentQ.type === "mcq") {
