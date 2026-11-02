@@ -2,10 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/require-user";
 import { getConcepts, saveApprenticeLesson } from "@/server/db/repository";
 import { generateApprenticeGapReport } from "@/server/ai/modes";
+import { checkAndIncrementAiUsage } from "@/server/ai/rate-limiter";
+
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
     const user = await requireUser();
+
+    const quota = await checkAndIncrementAiUsage(user.uid);
+    if (!quota.allowed) {
+      return NextResponse.json(
+        { error: `Daily AI quota reached (${quota.count}/${quota.limit}). Resets at midnight UTC.` },
+        { status: 429 }
+      );
+    }
     const body = await req.json();
     const {
       conceptId,

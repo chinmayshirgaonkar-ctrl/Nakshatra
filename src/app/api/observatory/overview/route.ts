@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/require-user";
 import { getObservatoryOverview } from "@/server/db/repository";
 
+export const maxDuration = 60;
+
 export async function GET() {
   try {
     const user = await requireUser();

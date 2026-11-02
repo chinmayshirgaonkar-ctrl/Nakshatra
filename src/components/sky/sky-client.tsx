@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import { useState, useEffect, useRef, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { SkyPayload, Concept, Subject, Topic, ConceptLink } from "@/lib/types/models";
-import { SkyCanvas } from "./sky-canvas";
 import { computeSkyConstellations } from "./layout-engine";
 import { StarNode } from "./sky-types";
 import { StarTooltip } from "./star-tooltip";
@@ -23,6 +23,23 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+
+const SkyCanvas = dynamic(
+  () => import("./sky-canvas").then((mod) => mod.SkyCanvas),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full w-full items-center justify-center bg-night">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-gold" />
+          <span className="font-mono text-xs uppercase tracking-widest text-gold-soft">
+            Aligning Celestial Coordinate Astrolabe...
+          </span>
+        </div>
+      </div>
+    ),
+  }
+);
 
 const CACHE_KEY = "nakshatra_sky_cache_v1";
 

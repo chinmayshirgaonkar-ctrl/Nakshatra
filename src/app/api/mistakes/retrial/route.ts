@@ -3,6 +3,8 @@ import { getSessionUser } from "@/lib/auth/require-user";
 import { getMistakes } from "@/server/db/repository";
 import { buildQuestionsFromMistakes } from "@/server/ai/trials";
 
+export const maxDuration = 30;
+
 export async function GET(request: NextRequest) {
   try {
     const user = await getSessionUser();
