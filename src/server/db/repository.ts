@@ -190,8 +190,11 @@ export async function createMaterialWithChunks(
     console.warn("Failed to generate chunk embeddings during material ingestion:", err);
   }
 
-  const batch = adminDb.batch();
-  batch.set(matRef, {
+  const BATCH_LIMIT = 200;
+  let currentBatch = adminDb.batch();
+  let opCount = 0;
+
+  currentBatch.set(matRef, {
     topicId: material.topicId,
     subjectId: material.subjectId,
     title: material.title,
@@ -201,8 +204,10 @@ export async function createMaterialWithChunks(
     chunkCount: material.chunkCount,
     createdAt: material.createdAt,
   });
+  opCount++;
 
-  chunks.forEach((chunk, idx) => {
+  for (let idx = 0; idx < chunks.length; idx++) {
+    const chunk = chunks[idx];
     const chunkRef = adminDb
       .collection(`users/${uid}/materials/${materialId}/chunks`)
       .doc(`${idx}`);
@@ -221,14 +226,23 @@ export async function createMaterialWithChunks(
       chunkDoc.embedding = FieldValue.vector(embeddings[idx]);
     }
 
-    batch.set(chunkRef, chunkDoc);
+    currentBatch.set(chunkRef, chunkDoc);
 
     // Also index in users/{uid}/chunks for fast vector search
     const unifiedChunkRef = adminDb.collection(`users/${uid}/chunks`).doc(`${materialId}_${idx}`);
-    batch.set(unifiedChunkRef, chunkDoc);
-  });
+    currentBatch.set(unifiedChunkRef, chunkDoc);
+    opCount += 2;
 
-  await batch.commit();
+    if (opCount >= BATCH_LIMIT) {
+      await currentBatch.commit();
+      currentBatch = adminDb.batch();
+      opCount = 0;
+    }
+  }
+
+  if (opCount > 0) {
+    await currentBatch.commit();
+  }
   return { material, chunks };
 }
 

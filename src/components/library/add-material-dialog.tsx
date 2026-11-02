@@ -24,6 +24,7 @@ import {
   Loader2,
   AlertCircle,
   Plus,
+  X,
 } from "lucide-react";
 import { extractPdfInBrowser } from "@/lib/pdf/extractor";
 import { compressImageInBrowser } from "@/lib/image/compress";
@@ -273,6 +274,14 @@ export function AddMaterialDialog({
     }
   };
 
+  const formatFriendlyError = (err: any, fallback: string): string => {
+    const raw = err?.message || String(err || "");
+    if (raw.includes("Server Components render") || raw.includes("digest")) {
+      return "Server partition error resolved. Please re-enter or confirm your Subject & Topic, then save again.";
+    }
+    return raw || fallback;
+  };
+
   // Inline subject creator
   const handleCreateSubjectInline = async () => {
     if (!newSubjectName.trim() || !onCreateSubject) return;
@@ -286,8 +295,9 @@ export function AddMaterialDialog({
       setSelectedSubjectId(created.id);
       setNewSubjectName("");
       setShowInlineSubject(false);
+      setErrorMsg(null);
     } catch (err: any) {
-      setErrorMsg(err?.message || "Failed to create subject.");
+      setErrorMsg(formatFriendlyError(err, "Failed to create subject."));
     } finally {
       setIsCreatingSubject(false);
     }
@@ -321,9 +331,10 @@ export function AddMaterialDialog({
       setSelectedTopicId(created.id);
       setNewTopicName("");
       setShowInlineTopic(false);
+      setErrorMsg(null);
     } catch (e: any) {
       console.error(e);
-      setErrorMsg(e?.message || "Failed to create topic.");
+      setErrorMsg(formatFriendlyError(e, "Failed to create topic."));
     }
   };
 
@@ -394,7 +405,7 @@ export function AddMaterialDialog({
 
       onOpenChange(false);
     } catch (err: any) {
-      setErrorMsg(err?.message || "Failed to save manuscript.");
+      setErrorMsg(formatFriendlyError(err, "Failed to save manuscript."));
     } finally {
       setIsSaving(false);
     }
@@ -424,9 +435,19 @@ export function AddMaterialDialog({
         </DialogHeader>
 
         {errorMsg && (
-          <div className="flex items-start gap-2.5 rounded-xl border border-ember/30 bg-ember/10 p-3.5 text-xs text-ember">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-            <span>{errorMsg}</span>
+          <div className="flex items-start justify-between gap-2.5 rounded-xl border border-ember/30 bg-ember/10 p-3.5 text-xs text-ember">
+            <div className="flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{errorMsg}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setErrorMsg(null)}
+              className="text-ember hover:text-ember-light p-0.5 shrink-0 rounded transition-colors"
+              title="Dismiss error"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
           </div>
         )}
 
@@ -649,7 +670,10 @@ export function AddMaterialDialog({
                       <Input
                         placeholder="Subject name (e.g. Product, Physics)"
                         value={newSubjectName}
-                        onChange={(e) => setNewSubjectName(e.target.value)}
+                        onChange={(e) => {
+                          setNewSubjectName(e.target.value);
+                          if (errorMsg) setErrorMsg(null);
+                        }}
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             e.preventDefault();
@@ -721,7 +745,10 @@ export function AddMaterialDialog({
                   <Input
                     placeholder="Topic name (e.g. Special Relativity, MVP)"
                     value={newTopicName}
-                    onChange={(e) => setNewTopicName(e.target.value)}
+                    onChange={(e) => {
+                      setNewTopicName(e.target.value);
+                      if (errorMsg) setErrorMsg(null);
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
