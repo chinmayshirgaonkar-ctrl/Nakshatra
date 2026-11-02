@@ -633,7 +633,7 @@ export async function updateConceptFSRSRatings(
     logRef,
     {
       date: dateKey,
-      reviewsCount: adminDb.constructor.name ? (await logRef.get()).data()?.reviewsCount || 0 + updates.length : updates.length,
+      reviewsCount: FieldValue.increment(updates.length),
       lastUpdated: now.toISOString(),
     },
     { merge: true }

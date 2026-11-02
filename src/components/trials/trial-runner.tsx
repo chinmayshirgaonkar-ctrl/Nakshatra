@@ -85,6 +85,24 @@ export function TrialRunner({
       let correctAnswerStr = "";
       let evalData: any = {};
 
+      const postWithRetry = async (url: string, bodyObj: any): Promise<Response> => {
+        try {
+          return await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(bodyObj),
+          });
+        } catch {
+          // Automatic single retry on momentary server disconnect
+          await new Promise((r) => setTimeout(r, 800));
+          return await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(bodyObj),
+          });
+        }
+      };
+
       if (currentQ.type === "mcq") {
         userAnswerStr = currentQ.options?.[selectedOption!] || "";
         correctAnswerStr = currentQ.options?.[currentQ.correctOptionIndex!] || "";
@@ -104,15 +122,11 @@ export function TrialRunner({
         userAnswerStr = textAnswer.trim();
         correctAnswerStr = currentQ.modelAnswer || "";
 
-        const gradeRes = await fetch("/api/trials/grade-short-answer", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            questionPrompt: currentQ.prompt,
-            modelAnswer: currentQ.modelAnswer,
-            rubricKeywords: currentQ.rubricKeywords,
-            userAnswer: userAnswerStr,
-          }),
+        const gradeRes = await postWithRetry("/api/trials/grade-short-answer", {
+          questionPrompt: currentQ.prompt,
+          modelAnswer: currentQ.modelAnswer,
+          rubricKeywords: currentQ.rubricKeywords,
+          userAnswer: userAnswerStr,
         });
 
         const gradeJson = await gradeRes.json();
@@ -122,23 +136,19 @@ export function TrialRunner({
         isCorrect = evalData.isCorrect;
       }
 
-      const submitRes = await fetch("/api/trials/submit-answer", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          questionPrompt: currentQ.prompt,
-          questionType: currentQ.type,
-          conceptIds: currentQ.conceptIds,
-          conceptNames: currentQ.conceptNames,
-          userAnswer: userAnswerStr,
-          correctAnswer: correctAnswerStr,
-          isCorrect,
-          confidence,
-          whyWrong: evalData.whyWrong || (!isCorrect ? currentQ.explanation : undefined),
-          correctReasoning: evalData.correctReasoning || currentQ.explanation,
-          memoryHook: evalData.memoryHook,
-          originalMistakeId: currentQ.originalMistakeId,
-        }),
+      const submitRes = await postWithRetry("/api/trials/submit-answer", {
+        questionPrompt: currentQ.prompt,
+        questionType: currentQ.type,
+        conceptIds: currentQ.conceptIds,
+        conceptNames: currentQ.conceptNames,
+        userAnswer: userAnswerStr,
+        correctAnswer: correctAnswerStr,
+        isCorrect,
+        confidence,
+        whyWrong: evalData.whyWrong || (!isCorrect ? currentQ.explanation : undefined),
+        correctReasoning: evalData.correctReasoning || currentQ.explanation,
+        memoryHook: evalData.memoryHook,
+        originalMistakeId: currentQ.originalMistakeId,
       });
 
       const submitJson = await submitRes.json();
@@ -173,7 +183,12 @@ export function TrialRunner({
       setWeakened((prev) => [...prev, ...newWeakened]);
       setIsRevealed(true);
     } catch (err: any) {
-      toast.error(err.message || "Failed to submit answer.");
+      const msg = err?.message || String(err || "");
+      if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
+        toast.error("Observatory connection refreshed. Please click Submit & Evaluate again.");
+      } else {
+        toast.error(msg || "Failed to submit answer.");
+      }
     } finally {
       setIsEvaluating(false);
     }
