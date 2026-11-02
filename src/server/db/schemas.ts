@@ -201,3 +201,12 @@ export const ShortAnswerGradingResponseSchema = z.object({
   correctReasoning: z.string().describe("The complete, lucid correct answer and explanation"),
   memoryHook: z.string().optional().describe("If score < 2, a 1-line celestial mnemonic hook to anchor memory"),
 });
+
+export const AiCrossSubjectThreadSchema = z.object({
+  fromConcept: z.string().describe("Name of the first concept"),
+  fromSubject: z.string().describe("Subject/discipline name of the first concept"),
+  toConcept: z.string().describe("Name of the second concept (must be from a different subject if possible)"),
+  toSubject: z.string().describe("Subject/discipline name of the second concept"),
+  connection: z.string().describe("Title or phrase naming the conceptual bridge"),
+  explanation: z.string().describe("Exactly 2 poetic, crystalline lines explaining the hidden connection between them"),
+});

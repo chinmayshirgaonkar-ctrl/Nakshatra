@@ -166,3 +166,53 @@ export interface TrialSessionResult {
   newMistakesCount: number;
   resolvedMistakesCount: number;
 }
+
+// ----------------- PHASE 5: THE SKY & OBSERVATORY -----------------
+export interface SkyPayload {
+  concepts: Concept[];
+  topics: Topic[];
+  subjects: Subject[];
+  links: ConceptLink[];
+}
+
+export interface ObservatoryWeeklyDay {
+  day: string;
+  date: string;
+  readingMinutes: number;
+  reviewCount: number;
+  totalMinutes: number;
+}
+
+export interface ExamCountdownItem {
+  topicId: string;
+  topicName: string;
+  subjectName: string;
+  subjectColor: string;
+  examDate: string;
+  daysRemaining: number;
+}
+
+export interface AiCrossSubjectThread {
+  fromConcept: string;
+  fromSubject: string;
+  toConcept: string;
+  toSubject: string;
+  connection: string;
+  explanation: string;
+}
+
+export interface ObservatoryOverviewData {
+  greetingEn: string;
+  greetingMr: string;
+  dateEn: string;
+  dateMr: string;
+  totalStars: number;
+  averageSkyBrightness: number;
+  weeklyMinutes: ObservatoryWeeklyDay[];
+  fadingStars: Concept[];
+  moonPhases: any[];
+  streakDays: number;
+  currentMoonPhase: { en: string; mr: string; fraction: number };
+  examCountdowns: ExamCountdownItem[];
+  aiThread: AiCrossSubjectThread | null;
+}

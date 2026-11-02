@@ -9,8 +9,15 @@ import {
   MistakeExhibit,
   ConceptFSRSChange,
   FSRSCardData,
+  ObservatoryOverviewData,
+  ObservatoryWeeklyDay,
+  ExamCountdownItem,
+  AiCrossSubjectThread,
 } from "@/lib/types/models";
 import { fsrs, Rating, Card, State } from "ts-fsrs";
+import { calculateConceptRetrievability, isConceptFading } from "@/lib/fsrs/retrievability";
+import { generatePast30DaysMoonPhases } from "@/lib/astronomy/moon";
+import { generateCrossSubjectThread } from "@/server/ai/observatory";
 
 // ----------------- SUBJECTS -----------------
 export async function getSubjects(uid: string): Promise<Subject[]> {
@@ -268,6 +275,18 @@ export async function createSingleConcept(
   return fullConcept;
 }
 
+export async function getConceptLinks(uid: string): Promise<ConceptLink[]> {
+  const snapshot = await adminDb.collection(`users/${uid}/conceptLinks`).get();
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...(doc.data() as Omit<ConceptLink, "id">),
+  }));
+}
+
+export async function deleteConceptLink(uid: string, id: string): Promise<void> {
+  await adminDb.doc(`users/${uid}/conceptLinks/${id}`).delete();
+}
+
 // ----------------- DAILY LOG / READING TIME -----------------
 export async function trackReadingTime(
   uid: string,
@@ -478,4 +497,205 @@ export async function updateMistakeStreak(
   });
 
   return updatedExhibit;
+}
+
+// ----------------- PHASE 5: OBSERVATORY & SKY -----------------
+
+export async function getDailyLogs(
+  uid: string,
+  limitDays = 30
+): Promise<Record<string, { date: string; reviewsCount?: number; readingSeconds?: number; aiThread?: any }>> {
+  const snapshot = await adminDb
+    .collection(`users/${uid}/dailyLogs`)
+    .orderBy("date", "desc")
+    .limit(limitDays)
+    .get();
+
+  const logs: Record<string, any> = {};
+  snapshot.docs.forEach((doc) => {
+    logs[doc.id] = doc.data();
+  });
+  return logs;
+}
+
+export async function getOrGenerateDailyAiThread(
+  uid: string,
+  concepts: Concept[],
+  subjects: Subject[]
+): Promise<AiCrossSubjectThread | null> {
+  if (concepts.length < 2) return null;
+
+  const dateKey = new Date().toISOString().split("T")[0];
+  const logRef = adminDb.doc(`users/${uid}/dailyLogs/${dateKey}`);
+  const logSnap = await logRef.get();
+
+  if (logSnap.exists && logSnap.data()?.aiThread) {
+    return logSnap.data()?.aiThread as AiCrossSubjectThread;
+  }
+
+  // Generate via Gemini
+  const thread = await generateCrossSubjectThread({ concepts, subjects });
+  if (thread) {
+    await logRef.set(
+      {
+        date: dateKey,
+        aiThread: thread,
+        lastUpdated: new Date().toISOString(),
+      },
+      { merge: true }
+    );
+  }
+  return thread;
+}
+
+const MR_DIGITS = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
+function toMarathiDigits(strOrNum: number | string): string {
+  return String(strOrNum).replace(/\d/g, (d) => MR_DIGITS[Number(d)] || d);
+}
+
+const MR_MONTHS = [
+  "जानेवारी", "फेब्रुवारी", "मार्च", "एप्रिल", "मे", "जून",
+  "जुलै", "ऑगस्ट", "सप्टेंबर", "ऑक्टोबर", "नोव्हेंबर", "डिसेंबर"
+];
+
+const MR_DAYS = [
+  "रविवार", "सोमवार", "मंगळवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार"
+];
+
+const EN_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const EN_MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+export async function getObservatoryOverview(uid: string): Promise<ObservatoryOverviewData> {
+  const [concepts, topics, subjects, dailyLogsMap] = await Promise.all([
+    getConcepts(uid),
+    getTopics(uid),
+    getSubjects(uid),
+    getDailyLogs(uid, 35),
+  ]);
+
+  const now = new Date();
+  const hour = now.getHours();
+
+  // Greetings
+  let greetingEn = "Good evening, Astronomer";
+  let greetingMr = "शुभ संध्याकाळ, खगोलविद";
+  if (hour >= 5 && hour < 12) {
+    greetingEn = "Good morning, Astronomer";
+    greetingMr = "शुभ प्रभात, खगोलविद";
+  } else if (hour >= 12 && hour < 17) {
+    greetingEn = "Good afternoon, Astronomer";
+    greetingMr = "शुभ दुपार, खगोलविद";
+  } else if (hour >= 21 || hour < 5) {
+    greetingEn = "The midnight sky is still, Astronomer";
+    greetingMr = "शुभ रात्री, खगोलविद";
+  }
+
+  // Dates
+  const dayOfWeek = now.getDay();
+  const dayOfMonth = now.getDate();
+  const monthIdx = now.getMonth();
+  const year = now.getFullYear();
+
+  const dateEn = `${EN_DAYS[dayOfWeek]}, ${dayOfMonth} ${EN_MONTHS[monthIdx]} ${year}`;
+  const dateMr = `${MR_DAYS[dayOfWeek]}, ${toMarathiDigits(dayOfMonth)} ${MR_MONTHS[monthIdx]} ${toMarathiDigits(year)}`;
+
+  // Average sky brightness and fading stars
+  let totalRetrievability = 0;
+  const fadingStars: Concept[] = [];
+
+  concepts.forEach((c) => {
+    const r = calculateConceptRetrievability(c.fsrs, now);
+    totalRetrievability += r;
+    if (isConceptFading(c, now)) {
+      fadingStars.push(c);
+    }
+  });
+
+  const averageSkyBrightness =
+    concepts.length > 0 ? Math.round((totalRetrievability / concepts.length) * 100) : 100;
+
+  // Sort fading stars by lowest retrievability first
+  fadingStars.sort((a, b) => {
+    const rA = calculateConceptRetrievability(a.fsrs, now);
+    const rB = calculateConceptRetrievability(b.fsrs, now);
+    return rA - rB;
+  });
+
+  // 30-day moon phases and streak
+  const { phases, streakDays, currentPhase } = generatePast30DaysMoonPhases(dailyLogsMap, now);
+
+  // Weekly minutes for the last 7 days
+  const weeklyMinutes: ObservatoryWeeklyDay[] = [];
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    const dateKey = d.toISOString().split("T")[0];
+    const log = dailyLogsMap[dateKey];
+    const readingMinutes = Math.round((log?.readingSeconds || 0) / 60);
+    const reviewCount = log?.reviewsCount || 0;
+    // Assume average 1 minute active contemplation per review question
+    const totalMinutes = readingMinutes + reviewCount;
+
+    weeklyMinutes.push({
+      day: dayNames[d.getDay()],
+      date: dateKey,
+      readingMinutes,
+      reviewCount,
+      totalMinutes,
+    });
+  }
+
+  // Exam countdowns
+  const subjectMap = new Map<string, Subject>();
+  subjects.forEach((s) => subjectMap.set(s.id, s));
+
+  const examCountdowns: ExamCountdownItem[] = [];
+  topics.forEach((t) => {
+    if (t.examDate) {
+      const examTime = new Date(t.examDate).getTime();
+      const diffMs = examTime - now.getTime();
+      const daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      const sub = subjectMap.get(t.subjectId);
+
+      examCountdowns.push({
+        topicId: t.id,
+        topicName: t.name,
+        subjectName: sub?.name || "General",
+        subjectColor: sub?.color || "#E6AF2E",
+        examDate: t.examDate,
+        daysRemaining,
+      });
+    }
+  });
+
+  // Sort exams by closest exam date first
+  examCountdowns.sort((a, b) => a.daysRemaining - b.daysRemaining);
+
+  // AI cross-subject thread (cached per calendar day in dailyLogs)
+  let aiThread: AiCrossSubjectThread | null = null;
+  try {
+    aiThread = await getOrGenerateDailyAiThread(uid, concepts, subjects);
+  } catch (e) {
+    console.error("Error generating daily thread:", e);
+  }
+
+  return {
+    greetingEn,
+    greetingMr,
+    dateEn,
+    dateMr,
+    totalStars: concepts.length,
+    averageSkyBrightness,
+    weeklyMinutes,
+    fadingStars: fadingStars.slice(0, 15),
+    moonPhases: phases,
+    streakDays,
+    currentMoonPhase: currentPhase,
+    examCountdowns,
+    aiThread,
+  };
 }
