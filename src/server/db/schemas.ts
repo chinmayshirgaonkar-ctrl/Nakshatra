@@ -210,3 +210,54 @@ export const AiCrossSubjectThreadSchema = z.object({
   connection: z.string().describe("Title or phrase naming the conceptual bridge"),
   explanation: z.string().describe("Exactly 2 poetic, crystalline lines explaining the hidden connection between them"),
 });
+
+// ----------------- PHASE 6: DEEP LEARNING SCHEMAS -----------------
+
+export const BlankPageEvaluationResponseSchema = z.object({
+  score: z.number().min(0).max(100).describe("Overall recall score 0 to 100"),
+  reflection: z.string().describe("Pedagogical synthesis of the user's mental model and recall fidelity"),
+  remembered: z.array(
+    z.object({
+      conceptId: z.string().describe("Matching concept ID from the provided topic concepts"),
+      conceptName: z.string().describe("Canonical concept name"),
+      userExcerpt: z.string().describe("The exact snippet or sentence from user text demonstrating recall"),
+      feedback: z.string().describe("Specific commendation on what was grasped accurately"),
+    })
+  ).describe("Concepts that were clearly and accurately recalled"),
+  partiallyRemembered: z.array(
+    z.object({
+      conceptId: z.string().describe("Matching concept ID"),
+      conceptName: z.string().describe("Canonical concept name"),
+      userExcerpt: z.string().describe("The snippet from user text showing partial recall"),
+      feedback: z.string().describe("What the user touched on"),
+      missingDetails: z.string().describe("Key mechanisms, conditions, or properties omitted"),
+    })
+  ).describe("Concepts mentioned superficially or with critical missing nuances"),
+  missed: z.array(
+    z.object({
+      conceptId: z.string().describe("Concept ID completely omitted"),
+      conceptName: z.string().describe("Canonical concept name"),
+      keyPrinciple: z.string().describe("1-2 sentence essence of this omitted concept"),
+    })
+  ).describe("Key topic concepts completely unmentioned in the recall text"),
+  misconceptions: z.array(
+    z.object({
+      userExcerpt: z.string().describe("The user's statement containing the error"),
+      misconceptionExplanation: z.string().describe("Why this statement is scientifically or logically flawed"),
+      canonicalCorrection: z.string().describe("The precise, canonical correct understanding"),
+    })
+  ).describe("Any flawed assertions, false conflations, or misconceptions found in user text"),
+});
+
+export const ApprenticeDialogueResponseSchema = z.object({
+  reply: z.string().describe("Curious, naive, smart question or intuitive observation from the apprentice. Asks for an example, asks why, or gently spots a contradiction. NEVER lectures."),
+});
+
+export const ApprenticeGapReportResponseSchema = z.object({
+  feynmanScore: z.number().min(0).max(100).describe("Feynman teaching mastery score 0 to 100"),
+  summary: z.string().describe("2-3 sentence overview of the teacher's clarity, simplicity, and grounding"),
+  explainedWell: z.array(z.string()).describe("Concepts, analogies, or mechanics explained with great clarity and intuition"),
+  unclear: z.array(z.string()).describe("Points that were murky, relied on unexplained jargon, or lacked concrete grounding"),
+  gotWrong: z.array(z.string()).describe("Factual inaccuracies, false claims, or contradictions uttered by the teacher"),
+  nextQuestions: z.array(z.string()).describe("Exactly 3 deep, provocative questions to study or explore next"),
+});

@@ -13,6 +13,10 @@ import {
   ObservatoryWeeklyDay,
   ExamCountdownItem,
   AiCrossSubjectThread,
+  BlankPageSession,
+  BlankPageEvaluation,
+  ApprenticeLesson,
+  ApprenticeGapReport,
 } from "@/lib/types/models";
 import { fsrs, Rating, Card, State } from "ts-fsrs";
 import { calculateConceptRetrievability, isConceptFading } from "@/lib/fsrs/retrievability";
@@ -698,4 +702,85 @@ export async function getObservatoryOverview(uid: string): Promise<ObservatoryOv
     examCountdowns,
     aiThread,
   };
+}
+
+// ----------------- PHASE 6: DEEP LEARNING MODES REPOSITORY -----------------
+
+export async function saveBlankPageSession(
+  uid: string,
+  sessionData: Omit<BlankPageSession, "id">
+): Promise<{ session: BlankPageSession; fsrsChanges: ConceptFSRSChange[] }> {
+  const ref = adminDb.collection(`users/${uid}/blankPageSessions`).doc();
+
+  // Build FSRS updates
+  const updates: Array<{ conceptId: string; rating: Rating }> = [];
+
+  // Remembered -> Good (Rating.Good = 3)
+  sessionData.evaluation.remembered.forEach((item) => {
+    updates.push({ conceptId: item.conceptId, rating: Rating.Good });
+  });
+
+  // Partially Remembered -> Hard (Rating.Hard = 2)
+  sessionData.evaluation.partiallyRemembered.forEach((item) => {
+    updates.push({ conceptId: item.conceptId, rating: Rating.Hard });
+  });
+
+  // Missed -> Again (Rating.Again = 1)
+  sessionData.evaluation.missed.forEach((item) => {
+    updates.push({ conceptId: item.conceptId, rating: Rating.Again });
+  });
+
+  const { strengthened, weakened } = await updateConceptFSRSRatings(uid, updates);
+  const allFsrsChanges = [...strengthened, ...weakened];
+
+  const fullSession: BlankPageSession = {
+    id: ref.id,
+    ...sessionData,
+    evaluation: {
+      ...sessionData.evaluation,
+      fsrsChanges: allFsrsChanges,
+    },
+  };
+
+  await ref.set(fullSession);
+  return { session: fullSession, fsrsChanges: allFsrsChanges };
+}
+
+export async function saveApprenticeLesson(
+  uid: string,
+  lessonData: Omit<ApprenticeLesson, "id">
+): Promise<{ lesson: ApprenticeLesson; fsrsChange?: ConceptFSRSChange }> {
+  const ref = adminDb.collection(`users/${uid}/apprenticeLessons`).doc();
+
+  let fsrsChange: ConceptFSRSChange | undefined;
+  if (lessonData.gapReport) {
+    const score = lessonData.gapReport.feynmanScore;
+    const rating: Rating =
+      score >= 80
+        ? Rating.Easy
+        : score >= 60
+        ? Rating.Good
+        : score >= 40
+        ? Rating.Hard
+        : Rating.Again;
+
+    const { strengthened, weakened } = await updateConceptFSRSRatings(uid, [
+      { conceptId: lessonData.conceptId, rating },
+    ]);
+    fsrsChange = strengthened[0] || weakened[0];
+  }
+
+  const fullLesson: ApprenticeLesson = {
+    id: ref.id,
+    ...lessonData,
+    gapReport: lessonData.gapReport
+      ? {
+          ...lessonData.gapReport,
+          fsrsChange,
+        }
+      : undefined,
+  };
+
+  await ref.set(fullLesson);
+  return { lesson: fullLesson, fsrsChange };
 }

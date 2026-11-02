@@ -216,3 +216,82 @@ export interface ObservatoryOverviewData {
   examCountdowns: ExamCountdownItem[];
   aiThread: AiCrossSubjectThread | null;
 }
+
+// ----------------- PHASE 6: DEEP LEARNING MODES -----------------
+
+export interface RememberedConceptItem {
+  conceptId: string;
+  conceptName: string;
+  userExcerpt: string;
+  feedback: string;
+}
+
+export interface PartiallyRememberedConceptItem {
+  conceptId: string;
+  conceptName: string;
+  userExcerpt: string;
+  feedback: string;
+  missingDetails: string;
+}
+
+export interface MissedConceptItem {
+  conceptId: string;
+  conceptName: string;
+  keyPrinciple: string;
+}
+
+export interface MisconceptionItem {
+  userExcerpt: string;
+  misconceptionExplanation: string;
+  canonicalCorrection: string;
+}
+
+export interface BlankPageEvaluation {
+  score: number; // 0 to 100
+  reflection: string;
+  remembered: RememberedConceptItem[];
+  partiallyRemembered: PartiallyRememberedConceptItem[];
+  missed: MissedConceptItem[];
+  misconceptions: MisconceptionItem[];
+  fsrsChanges?: ConceptFSRSChange[];
+}
+
+export interface BlankPageSession {
+  id: string;
+  topicId: string;
+  topicName: string;
+  subjectId: string;
+  recallText: string;
+  durationSeconds: number;
+  evaluation: BlankPageEvaluation;
+  createdAt: string;
+}
+
+export interface ApprenticeMessage {
+  id: string;
+  sender: "user" | "apprentice";
+  text: string;
+  timestamp: string;
+}
+
+export interface ApprenticeGapReport {
+  feynmanScore: number; // 0 to 100
+  summary: string;
+  explainedWell: string[];
+  unclear: string[];
+  gotWrong: string[];
+  nextQuestions: string[];
+  fsrsChange?: ConceptFSRSChange;
+}
+
+export interface ApprenticeLesson {
+  id: string;
+  conceptId: string;
+  conceptName: string;
+  subjectId: string;
+  topicId: string;
+  language: "en" | "mr";
+  messages: ApprenticeMessage[];
+  gapReport?: ApprenticeGapReport;
+  createdAt: string;
+}
