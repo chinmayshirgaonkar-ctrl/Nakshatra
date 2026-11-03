@@ -45,6 +45,14 @@ function LoginForm() {
       console.error("Authentication error:", err);
       if (err?.code === "auth/popup-closed-by-user") {
         setError("Sign-in popup closed before completion.");
+      } else if (err?.code === "auth/unauthorized-domain") {
+        setError(
+          "This Vercel domain is not yet whitelisted in Firebase. Please add this domain to Firebase Console → Authentication → Settings → Authorized domains."
+        );
+      } else if (err?.message?.includes("Client environment validation failed")) {
+        setError(
+          "Environment Variables missing in Vercel: Please paste your .env.local keys into Vercel Project Settings → Environment Variables, then click Redeploy."
+        );
       } else {
         setError(err?.message || "Failed to enter the observatory.");
       }
